@@ -1,0 +1,3815 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="carbon">
+  <title>Sistem Akuntansi &amp; Bisnis Online — Simulasi Terpadu</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      color-scheme: light;
+
+      /* Page and surfaces */
+      --background: #ffffff;
+      --surface-container-low: #f4f4f4;
+      --surface-container: #f4f4f4;
+      --surface-container-high: #e0e0e0;
+
+      /* Ink */
+      --on-surface: #161616;
+      --on-surface-variant: #525252;
+
+      /* Rules */
+      --outline: #8d8d8d;
+      --outline-variant: #e0e0e0;
+
+      /* Accents */
+      --primary: #0f62fe;
+      --on-primary: #ffffff;
+      --primary-container: #d0e2ff;
+      --on-primary-container: #161616;
+      --secondary: #6f6f6f;
+      --tertiary: #198038;
+      --error: #da1e28;
+      --on-error: #ffffff;
+
+      /* Semantic */
+      --positive: #198038;
+      --positive-container: #defbe6;
+      --warning: #7a5900;
+      --warning-container: #fcf4d6;
+      --error-container: #fff1f1;
+      --focus: #0f62fe;
+
+      /* Data series */
+      --data-1: #0f62fe;
+      --data-2: #6929c4;
+      --data-3: #005d5d;
+      --data-4: #9f1853;
+      --data-context: #8d8d8d;
+
+      /* Fonts */
+      --font-headline: 'IBM Plex Sans', sans-serif;
+      --font-body: 'IBM Plex Sans', sans-serif;
+      --font-label: 'IBM Plex Mono', monospace;
+
+      /* Shape */
+      --rounded: 0.125rem;
+      --rounded-lg: 0.25rem;
+      --rounded-full: 0.75rem;
+
+      /* Style effects */
+      --shadow-1: 0 2px 6px rgb(0 0 0 / 0.1);
+      --shadow-2: 0 4px 12px rgb(0 0 0 / 0.12);
+      --rule: 1px solid var(--outline-variant);
+      --rule-strong: 1px solid var(--on-surface);
+      --field-rule: 1px solid var(--outline);
+      --indicator: 2px solid var(--primary);
+      --state-bar-pos: 3px solid var(--positive);
+      --state-bar-warn: 3px solid var(--warning);
+      --state-bar-err: 3px solid var(--error);
+      --state-bar-info: 3px solid var(--primary);
+
+      /* Type scale */
+      --display-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+      --headline-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --label-size: 0.75rem;
+
+      /* Spacing scale (4pt base) */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+      --space-3xl: 6rem;
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+      --dur-long: 420ms;
+    }
+
+    /* Base reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    header { position: static !important; }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* Shell layout */
+    .app-shell {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: var(--space-lg);
+      display: grid;
+      gap: var(--space-lg);
+    }
+    .app-shell * { min-width: 0; }
+
+    /* Top Header */
+    .app-header {
+      border-bottom: var(--rule);
+      padding-bottom: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .header-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: var(--space-md);
+    }
+
+    .brand-block {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .label-mono {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--on-surface-variant);
+    }
+
+    .headline-display {
+      font-family: var(--font-headline);
+      font-size: var(--display-size);
+      font-weight: 300;
+      line-height: 1.18;
+      letter-spacing: 0;
+      margin: 0;
+    }
+    .headline-display strong { font-weight: 600; }
+
+    .headline-section {
+      font-family: var(--font-headline);
+      font-size: var(--headline-size);
+      font-weight: 300;
+      line-height: 1.25;
+      margin: 0;
+    }
+    .headline-section strong { font-weight: 600; }
+
+    .subhead-title {
+      font-family: var(--font-headline);
+      font-size: var(--subhead-size);
+      font-weight: 600;
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    .header-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .entity-badge {
+      background: var(--surface-container);
+      padding: var(--space-xs) var(--space-md);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      min-height: 44px;
+    }
+
+    /* Main Module Navigation Tabs */
+    .nav-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      border-bottom: var(--rule);
+      padding-bottom: 0;
+    }
+
+    .nav-tab-btn {
+      background: transparent;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      padding: var(--space-sm) var(--space-md);
+      min-height: 44px;
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      font-weight: 400;
+      color: var(--on-surface-variant);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      transition: color var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out);
+    }
+
+    .nav-tab-btn:hover {
+      background-color: var(--surface-container);
+      color: var(--on-surface);
+    }
+
+    .nav-tab-btn.is-active {
+      color: var(--on-surface);
+      font-weight: 600;
+      border-bottom: var(--indicator);
+    }
+
+    /* Sub-tabs inside modules */
+    .sub-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      border-bottom: var(--rule);
+      margin-bottom: var(--space-md);
+    }
+
+    .sub-tab-btn {
+      background: transparent;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      padding: var(--space-sm) var(--space-md);
+      min-height: 44px;
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--on-surface-variant);
+      cursor: pointer;
+      transition: color var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out);
+    }
+    .sub-tab-btn:hover {
+      background-color: var(--surface-container);
+      color: var(--on-surface);
+    }
+    .sub-tab-btn.is-active {
+      color: var(--primary);
+      font-weight: 600;
+      border-bottom: var(--indicator);
+    }
+
+    /* Buttons (Carbon: square corners, left-aligned text) */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      min-height: 44px;
+      padding: var(--space-sm) var(--space-lg) var(--space-sm) var(--space-md);
+      border: 1px solid transparent;
+      border-radius: 0;
+      font-weight: 400;
+      font-size: 0.875rem;
+      cursor: pointer;
+      text-align: left;
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out);
+    }
+
+    .btn-compact {
+      min-height: 40px;
+      padding: var(--space-xs) var(--space-md);
+      gap: var(--space-sm);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--on-primary);
+    }
+    .btn-primary:hover {
+      background-color: color-mix(in srgb, var(--primary), var(--on-surface) 22%);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .btn-secondary:hover {
+      background-color: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+
+    .btn-ghost {
+      background-color: transparent;
+      color: var(--primary);
+      padding-left: var(--space-sm);
+      padding-right: var(--space-sm);
+    }
+    .btn-ghost:hover {
+      background-color: var(--surface-container);
+    }
+
+    .btn-danger-outline {
+      background-color: transparent;
+      border-color: var(--error);
+      color: var(--error);
+    }
+    .btn-danger-outline:hover {
+      background-color: var(--error-container);
+    }
+
+    .btn:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+    }
+
+    /* Carbon flat gray layers */
+    .layer {
+      background-color: var(--surface-container);
+      border-radius: 0;
+      padding: var(--space-md);
+    }
+    .layer .layer {
+      background-color: var(--surface-container-high);
+    }
+    .layer-bordered {
+      background-color: var(--background);
+      border: var(--rule);
+      padding: var(--space-md);
+    }
+
+    /* Notification banner */
+    .toast-area {
+      display: none;
+      background-color: var(--surface-container);
+      padding: var(--space-sm) var(--space-md);
+      border-left: var(--state-bar-info);
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+    }
+    .toast-area.is-visible { display: flex; }
+    .toast-area.is-positive { border-left: var(--state-bar-pos); }
+    .toast-area.is-warning { border-left: var(--state-bar-warn); }
+    .toast-area.is-error { border-left: var(--state-bar-err); }
+
+    .toast-content {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: 0.875rem;
+    }
+
+    /* Grid utilities */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: var(--space-md);
+    }
+    .kpi-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-md);
+    }
+    .kpi-tile {
+      background-color: var(--surface-container);
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    .kpi-tile.is-primary-tile {
+      border-bottom: var(--indicator);
+    }
+
+    .kpi-value {
+      font-family: var(--font-label);
+      font-weight: 300;
+      font-size: clamp(1.375rem, 1.1rem + 0.8vw, 1.85rem);
+      line-height: 1.2;
+      color: var(--on-surface);
+      font-variant-numeric: tabular-nums;
+      word-break: break-word;
+    }
+
+    .kpi-helper {
+      font-size: 0.8125rem;
+      color: var(--on-surface-variant);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    .text-positive { color: var(--positive); }
+    .text-error { color: var(--error); }
+    .text-warning { color: var(--warning); }
+    .text-primary { color: var(--primary); }
+
+    /* Asymmetric dashboard split */
+    .dash-split {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--space-md);
+    }
+    .split-5-7 {
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: var(--space-lg);
+      align-items: start;
+    }
+    .split-6-6 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-lg);
+      align-items: start;
+    }
+
+    /* Section header rule */
+    .section-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: var(--space-sm);
+      border-bottom: var(--rule);
+      padding-bottom: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+
+    /* Forms (Carbon: 40px tall, gray 10 fill, bottom field-rule, visible label above) */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+      gap: var(--space-md);
+      align-items: end;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    .field label {
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+      font-weight: 500;
+    }
+    .field input,
+    .field select,
+    .field textarea {
+      height: 40px;
+      background-color: var(--background);
+      border: 0;
+      border-bottom: var(--field-rule);
+      border-radius: 0;
+      padding: 0 var(--space-md);
+      width: 100%;
+      transition: background-color var(--dur-micro) var(--ease-out);
+    }
+    .layer-bordered .field input,
+    .layer-bordered .field select {
+      background-color: var(--surface-container);
+    }
+    .field select {
+      padding-right: var(--space-xl);
+    }
+    .field input:focus,
+    .field select:focus {
+      background-color: var(--surface-container-low);
+    }
+    .field-error {
+      font-size: 0.75rem;
+      color: var(--error);
+      min-height: 1rem;
+    }
+
+    /* Line-items table inside invoice forms */
+    .line-items-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+      margin-top: var(--space-md);
+    }
+    .line-item-row {
+      display: grid;
+      grid-template-columns: minmax(0, 4fr) minmax(0, 2fr) minmax(0, 2.5fr) minmax(0, 2.5fr) auto;
+      gap: var(--space-sm);
+      align-items: end;
+      background-color: var(--background);
+      padding: var(--space-sm);
+      border-bottom: var(--rule);
+    }
+
+    /* Tables (Carbon: zebra rows, gray 20 header, mono right-aligned figures) */
+    .table-scroll {
+      width: 100%;
+      overflow-x: auto;
+      max-width: 100%;
+    }
+    table.carbon-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      text-align: left;
+    }
+    table.carbon-table thead th {
+      background-color: var(--surface-container-high);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--on-surface);
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: var(--rule);
+      white-space: nowrap;
+    }
+    table.carbon-table tbody td {
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: var(--rule);
+      vertical-align: middle;
+    }
+    table.carbon-table tbody tr:nth-child(even) {
+      background-color: var(--surface-container-low);
+    }
+    table.carbon-table tbody tr:hover {
+      background-color: var(--surface-container-high);
+    }
+    table.carbon-table .num {
+      text-align: right;
+      font-family: var(--font-label);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    table.carbon-table thead th.num {
+      text-align: right;
+    }
+    table.carbon-table .mono {
+      font-family: var(--font-label);
+      font-size: 0.8125rem;
+    }
+
+    /* Tags (Carbon: only tags get --rounded-full) */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 var(--space-sm);
+      border-radius: var(--rounded-full);
+      font-size: 0.75rem;
+      font-weight: 500;
+      white-space: nowrap;
+      background-color: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+    .tag-positive {
+      background-color: var(--positive-container);
+      color: var(--on-surface);
+    }
+    .tag-warning {
+      background-color: var(--warning-container);
+      color: var(--on-surface);
+    }
+    .tag-error {
+      background-color: var(--error-container);
+      color: var(--error);
+    }
+    .tag-neutral {
+      background-color: var(--surface-container-high);
+      color: var(--on-surface);
+    }
+
+    /* Chart containers */
+    .chart-box {
+      position: relative;
+      width: 100%;
+      min-height: 280px;
+      height: 280px;
+    }
+    .chart-box-sm {
+      position: relative;
+      width: 100%;
+      min-height: 240px;
+      height: 240px;
+    }
+
+    /* Inline payment drawer / panel */
+    .inline-drawer {
+      display: none;
+      background-color: var(--surface-container);
+      border-left: var(--state-bar-info);
+      padding: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+    .inline-drawer.is-open {
+      display: block;
+    }
+
+    /* Financial statement rows */
+    .fin-statement {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    .fin-group-title {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--on-surface-variant);
+      padding-top: var(--space-md);
+      padding-bottom: var(--space-xs);
+      border-bottom: var(--rule);
+    }
+    .fin-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--space-md);
+      padding: var(--space-xs) 0;
+      border-bottom: var(--rule);
+      font-size: 0.9375rem;
+    }
+    .fin-row.is-subtotal {
+      font-weight: 600;
+      background-color: var(--surface-container);
+      padding: var(--space-sm);
+      border-bottom: var(--rule-strong);
+    }
+    .fin-row.is-total {
+      font-weight: 600;
+      font-size: 1.0625rem;
+      background-color: var(--primary-container);
+      color: var(--on-primary-container);
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: var(--indicator);
+    }
+    .fin-amt {
+      font-family: var(--font-label);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    /* Toolbar row */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      align-items: end;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+    }
+    .toolbar-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      align-items: end;
+    }
+
+    /* Module panels */
+    .module-panel { display: none; }
+    .module-panel.is-active {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+      animation: fadeSlide var(--dur-short) var(--ease-out);
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Footer */
+    .app-footer {
+      border-top: var(--rule);
+      padding-top: var(--space-md);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-md);
+      color: var(--on-surface-variant);
+      font-size: 0.8125rem;
+    }
+
+    /* Responsive container / media queries */
+    @media (max-width: 1024px) {
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dash-split { grid-template-columns: minmax(0, 1fr); }
+      .split-5-7 { grid-template-columns: minmax(0, 1fr); }
+      .split-6-6 { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      .app-shell { padding: var(--space-sm); gap: var(--space-md); }
+      .kpi-grid, .kpi-grid-3 { grid-template-columns: minmax(0, 1fr); }
+      .line-item-row { grid-template-columns: minmax(0, 1fr); }
+      .nav-tab-btn { flex: 1 1 auto; justify-content: flex-start; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="header-top">
+        <div class="brand-block">
+          <span class="label-mono">Sistem Informasi Akuntansi &amp; Operasional Terintegrasi</span>
+          <h1 class="headline-display">Akuntansi Bisnis <strong>Real-Time</strong></h1>
+        </div>
+        <div class="header-controls">
+          <div class="entity-badge" aria-label="Entitas dan Periode Aktif">
+            <i data-lucide="building-2" aria-hidden="true" width="16" height="16"></i>
+            <span>PT Nusantara Niaga Sejahtera · Nov 2026</span>
+          </div>
+          <button type="button" class="btn btn-secondary btn-compact" onclick="exportAllJournalsCsv()">
+            <span>Ekspor Jurnal CSV</span>
+            <i data-lucide="download" aria-hidden="true" width="16" height="16"></i>
+          </button>
+          <button type="button" class="btn btn-danger-outline btn-compact" id="btn-reset-sim" onclick="handleResetSimulation(this)">
+            <span>Reset Simulasi</span>
+            <i data-lucide="rotate-ccw" aria-hidden="true" width="16" height="16"></i>
+          </button>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" aria-label="Navigasi Modul Utama">
+        <button type="button" class="nav-tab-btn is-active" data-module="dashboard" onclick="switchModule('dashboard')">
+          <i data-lucide="layout-dashboard" aria-hidden="true" width="16" height="16"></i>
+          <span>Dashboard</span>
+        </button>
+        <button type="button" class="nav-tab-btn" data-module="sales" onclick="switchModule('sales')">
+          <i data-lucide="receipt" aria-hidden="true" width="16" height="16"></i>
+          <span>Penjualan</span>
+        </button>
+        <button type="button" class="nav-tab-btn" data-module="purchasing" onclick="switchModule('purchasing')">
+          <i data-lucide="shopping-bag" aria-hidden="true" width="16" height="16"></i>
+          <span>Pembelian</span>
+        </button>
+        <button type="button" class="nav-tab-btn" data-module="inventory" onclick="switchModule('inventory')">
+          <i data-lucide="boxes" aria-hidden="true" width="16" height="16"></i>
+          <span>Persediaan</span>
+        </button>
+        <button type="button" class="nav-tab-btn" data-module="cashbank" onclick="switchModule('cashbank')">
+          <i data-lucide="landmark" aria-hidden="true" width="16" height="16"></i>
+          <span>Kas &amp; Bank</span>
+        </button>
+        <button type="button" class="nav-tab-btn" data-module="ledger" onclick="switchModule('ledger')">
+          <i data-lucide="book-open-check" aria-hidden="true" width="16" height="16"></i>
+          <span>Buku Besar &amp; Laporan</span>
+        </button>
+      </nav>
+    </header>
+
+    <div id="global-toast" class="toast-area" role="status" aria-live="polite">
+      <div class="toast-content">
+        <i data-lucide="info" aria-hidden="true" width="18" height="18"></i>
+        <span id="global-toast-text">Siap digunakan.</span>
+      </div>
+      <button type="button" class="btn btn-ghost btn-compact" onclick="hideToast()" aria-label="Tutup notifikasi">Tutup</button>
+    </div>
+
+    <main>
+      <!-- ==================== 1. DASHBOARD ==================== -->
+      <section id="module-dashboard" class="module-panel is-active" aria-label="Dashboard Keuangan">
+        <div class="kpi-grid" id="dash-kpis"></div>
+
+        <div class="kpi-grid-3" id="dash-secondary-kpis"></div>
+
+        <div class="layer" style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:var(--space-md);">
+          <div>
+            <div class="label-mono">Aksi Cepat Transaksi</div>
+            <div style="font-size:0.875rem; color:var(--on-surface-variant);">Setiap transaksi otomatis memperbarui stok, Kas &amp; Bank, Jurnal Umum, Laba Rugi, dan Neraca.</div>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:var(--space-sm);">
+            <button type="button" class="btn btn-primary btn-compact" onclick="quickJump('sales', 'sales-new')">
+              <span>+ Faktur Penjualan</span>
+              <i data-lucide="arrow-right" aria-hidden="true" width="15" height="15"></i>
+            </button>
+            <button type="button" class="btn btn-secondary btn-compact" onclick="quickJump('purchasing', 'purch-new')">
+              <span>+ Faktur Pembelian</span>
+              <i data-lucide="arrow-right" aria-hidden="true" width="15" height="15"></i>
+            </button>
+            <button type="button" class="btn btn-secondary btn-compact" onclick="quickJump('cashbank', 'cb-main')">
+              <span>+ Mutasi Kas &amp; Bank</span>
+              <i data-lucide="arrow-right" aria-hidden="true" width="15" height="15"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="dash-split">
+          <div class="layer-bordered">
+            <div class="section-head">
+              <div>
+                <h2 class="subhead-title">Tren Penjualan, Pembelian &amp; Beban Harian</h2>
+                <div class="label-mono">Periode November 2026 (Dalam Ribuan Rupiah)</div>
+              </div>
+            </div>
+            <div class="chart-box">
+              <canvas id="chart-cashflow"></canvas>
+            </div>
+          </div>
+
+          <div class="layer-bordered">
+            <div class="section-head">
+              <div>
+                <h2 class="subhead-title">Komposisi Saldo Kas &amp; Bank</h2>
+                <div class="label-mono">Distribusi Likuiditas Real-Time</div>
+              </div>
+            </div>
+            <div class="chart-box-sm">
+              <canvas id="chart-accounts"></canvas>
+            </div>
+            <div id="dash-bank-breakdown" style="margin-top:var(--space-md); display:flex; flex-direction:column; gap:var(--space-xs);"></div>
+          </div>
+        </div>
+
+        <div class="split-6-6">
+          <div class="layer-bordered">
+            <div class="section-head">
+              <div>
+                <h2 class="subhead-title">Tagihan &amp; Utang Perlu Tindakan</h2>
+                <div class="label-mono">Faktur Belum Lunas / Sebagian</div>
+              </div>
+              <button type="button" class="btn btn-ghost btn-compact" onclick="switchModule('sales')">Kelola</button>
+            </div>
+            <div class="table-scroll">
+              <table class="carbon-table">
+                <thead>
+                  <tr>
+                    <th>No. Faktur</th>
+                    <th>Mitra</th>
+                    <th>Jenis</th>
+                    <th class="num">Sisa</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="dash-open-invoices"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="layer-bordered">
+            <div class="section-head">
+              <div>
+                <h2 class="subhead-title">Jurnal Otomatis Terbaru</h2>
+                <div class="label-mono">5 Entri Buku Besar Terakhir</div>
+              </div>
+              <button type="button" class="btn btn-ghost btn-compact" onclick="switchModule('ledger')">Lihat Semua</button>
+            </div>
+            <div class="table-scroll">
+              <table class="carbon-table">
+                <thead>
+                  <tr>
+                    <th>Tanggal</th>
+                    <th>Referensi</th>
+                    <th>Keterangan</th>
+                    <th class="num">Nominal</th>
+                  </tr>
+                </thead>
+                <tbody id="dash-recent-journals"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 2. MODUL PENJUALAN ==================== -->
+      <section id="module-sales" class="module-panel" aria-label="Modul Penjualan">
+        <div class="section-head">
+          <div>
+            <h2 class="headline-section">Modul <strong>Penjualan</strong></h2>
+            <div class="label-mono">Faktur Penjualan · Penerimaan Pembayaran · Master Pelanggan</div>
+          </div>
+        </div>
+
+        <div class="sub-tabs" role="tablist">
+          <button type="button" class="sub-tab-btn is-active" data-subtab="sales-list" onclick="switchSubTab('sales', 'sales-list')">Daftar Faktur &amp; Penerimaan</button>
+          <button type="button" class="sub-tab-btn" data-subtab="sales-new" onclick="switchSubTab('sales', 'sales-new')">+ Buat Faktur Penjualan</button>
+          <button type="button" class="sub-tab-btn" data-subtab="sales-customers" onclick="switchSubTab('sales', 'sales-customers')">Data Pelanggan</button>
+        </div>
+
+        <!-- Subtab: Daftar Faktur Penjualan -->
+        <div id="subpanel-sales-list" class="subpanel">
+          <div id="sales-payment-drawer" class="inline-drawer" aria-label="Form Penerimaan Pembayaran Penjualan">
+            <div class="section-head">
+              <div>
+                <h3 class="subhead-title">Catat Penerimaan Pembayaran Faktur</h3>
+                <div class="label-mono" id="sales-pay-meta">—</div>
+              </div>
+              <button type="button" class="btn btn-ghost btn-compact" onclick="closeSalesPayDrawer()">Batal</button>
+            </div>
+            <form onsubmit="submitSalesPayment(event)">
+              <input type="hidden" id="sales-pay-inv-id">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="sales-pay-date">Tanggal Terima</label>
+                  <input type="date" id="sales-pay-date" required>
+                </div>
+                <div class="field">
+                  <label for="sales-pay-account">Masuk ke Akun Kas/Bank</label>
+                  <select id="sales-pay-account" required>
+                    <option value="1102">1102 — Bank BCA Operasional</option>
+                    <option value="1103">1103 — Bank Mandiri Bisnis</option>
+                    <option value="1101">1101 — Kas Tunai</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="sales-pay-amount">Jumlah Diterima (Rp)</label>
+                  <input type="number" id="sales-pay-amount" min="1" step="100" required>
+                </div>
+                <div class="field">
+                  <button type="submit" class="btn btn-primary btn-compact">Simpan Penerimaan</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="toolbar">
+            <div class="toolbar-group">
+              <div class="field">
+                <label for="sales-filter-search">Cari Faktur / Pelanggan</label>
+                <input type="text" id="sales-filter-search" placeholder="INV-2611..." oninput="renderSalesModule()">
+              </div>
+              <div class="field">
+                <label for="sales-filter-status">Status Pembayaran</label>
+                <select id="sales-filter-status" onchange="renderSalesModule()">
+                  <option value="ALL">Semua Status</option>
+                  <option value="UNPAID">Belum Lunas</option>
+                  <option value="PARTIAL">Dibayar Sebagian</option>
+                  <option value="PAID">Lunas</option>
+                </select>
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary btn-compact" onclick="switchSubTab('sales', 'sales-new')">+ Faktur Penjualan Baru</button>
+          </div>
+
+          <div class="table-scroll">
+            <table class="carbon-table">
+              <thead>
+                <tr>
+                  <th>No. Faktur</th>
+                  <th>Tanggal</th>
+                  <th>Pelanggan</th>
+                  <th>Rincian Item</th>
+                  <th class="num">Total Faktur</th>
+                  <th class="num">Terbayar</th>
+                  <th class="num">Sisa Piutang</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="sales-invoices-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Subtab: Buat Faktur Penjualan -->
+        <div id="subpanel-sales-new" class="subpanel" style="display:none;">
+          <div class="layer">
+            <div class="section-head">
+              <div>
+                <h3 class="subhead-title">Buat Faktur Penjualan Baru</h3>
+                <div class="label-mono">Otomatis memotong stok persediaan &amp; mencatat jurnal Pendapatan + HPP</div>
+              </div>
+            </div>
+            <form id="form-new-sale" onsubmit="submitNewSale(event)">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="sale-customer">Pelanggan</label>
+                  <select id="sale-customer" required></select>
+                </div>
+                <div class="field">
+                  <label for="sale-date">Tanggal Faktur</label>
+                  <input type="date" id="sale-date" required>
+                </div>
+                <div class="field">
+                  <label for="sale-payment-mode">Metode Pembayaran</label>
+                  <select id="sale-payment-mode" onchange="toggleSaleCashAccount()">
+                    <option value="CREDIT">Kredit / Tempo (Piutang Usaha)</option>
+                    <option value="CASH">Tunai / Transfer Langsung (Lunas)</option>
+                  </select>
+                </div>
+                <div class="field" id="sale-cash-account-wrap" style="display:none;">
+                  <label for="sale-cash-account">Terima ke Akun</label>
+                  <select id="sale-cash-account">
+                    <option value="1102">1102 — Bank BCA Operasional</option>
+                    <option value="1103">1103 — Bank Mandiri Bisnis</option>
+                    <option value="1101">1101 — Kas Tunai</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="line-items-wrap">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span class="label-mono">Daftar Barang Dijual</span>
+                  <button type="button" class="btn btn-secondary btn-compact" onclick="addSaleLineRow()">+ Tambah Baris Barang</button>
+                </div>
+                <div id="sale-lines-container"></div>
+              </div>
+
+              <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:var(--space-md); margin-top:var(--space-lg); padding-top:var(--space-md); border-top:var(--rule);">
+                <div>
+                  <div class="label-mono">Estimasi Total Faktur</div>
+                  <div class="kpi-value" id="sale-grand-total">Rp 0</div>
+                  <div class="label-mono" id="sale-cogs-preview">Estimasi HPP: Rp 0</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Terbitkan Faktur &amp; Posting Jurnal</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Subtab: Master Pelanggan -->
+        <div id="subpanel-sales-customers" class="subpanel" style="display:none;">
+          <div class="split-5-7">
+            <div class="layer">
+              <div class="section-head">
+                <h3 class="subhead-title">Tambah Pelanggan Baru</h3>
+              </div>
+              <form onsubmit="submitNewCustomer(event)" style="display:flex; flex-direction:column; gap:var(--space-md);">
+                <div class="field">
+                  <label for="cust-name">Nama Perusahaan / Pelanggan</label>
+                  <input type="text" id="cust-name" placeholder="Contoh: Kedai Kopi Merpati" required>
+                </div>
+                <div class="field">
+                  <label for="cust-segment">Segmen Bisnis</label>
+                  <select id="cust-segment">
+                    <option value="F&amp;B / Kafe">F&amp;B / Kafe</option>
+                    <option value="Retail / Toko">Retail / Toko</option>
+                    <option value="Distributor / Reseller">Distributor / Reseller</option>
+                    <option value="Korporasi">Korporasi</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="cust-city">Kota</label>
+                  <input type="text" id="cust-city" placeholder="Jakarta Selatan" required>
+                </div>
+                <div class="field">
+                  <label for="cust-phone">Telepon / WhatsApp</label>
+                  <input type="text" id="cust-phone" placeholder="0812-3456-7890" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Simpan Pelanggan</button>
+              </form>
+            </div>
+
+            <div class="layer-bordered">
+              <div class="section-head">
+                <h3 class="subhead-title">Direktori Pelanggan Aktif</h3>
+              </div>
+              <div class="table-scroll">
+                <table class="carbon-table">
+                  <thead>
+                    <tr>
+                      <th>Kode</th>
+                      <th>Nama Pelanggan</th>
+                      <th>Segmen</th>
+                      <th>Kota</th>
+                      <th class="num">Total Belanja</th>
+                      <th class="num">Piutang</th>
+                    </tr>
+                  </thead>
+                  <tbody id="customers-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 3. MODUL PEMBELIAN ==================== -->
+      <section id="module-purchasing" class="module-panel" aria-label="Modul Pembelian">
+        <div class="section-head">
+          <div>
+            <h2 class="headline-section">Modul <strong>Pembelian</strong></h2>
+            <div class="label-mono">Faktur Pembelian · Pengeluaran Kas ke Pemasok · Master Pemasok</div>
+          </div>
+        </div>
+
+        <div class="sub-tabs" role="tablist">
+          <button type="button" class="sub-tab-btn is-active" data-subtab="purch-list" onclick="switchSubTab('purchasing', 'purch-list')">Daftar Faktur &amp; Pengeluaran Kas</button>
+          <button type="button" class="sub-tab-btn" data-subtab="purch-new" onclick="switchSubTab('purchasing', 'purch-new')">+ Catat Pembelian Baru</button>
+          <button type="button" class="sub-tab-btn" data-subtab="purch-suppliers" onclick="switchSubTab('purchasing', 'purch-suppliers')">Data Pemasok</button>
+        </div>
+
+        <!-- Subtab: Daftar Pembelian -->
+        <div id="subpanel-purch-list" class="subpanel">
+          <div id="purch-payment-drawer" class="inline-drawer" aria-label="Form Pembayaran Utang Pemasok">
+            <div class="section-head">
+              <div>
+                <h3 class="subhead-title">Catat Pengeluaran Kas / Pelunasan Utang Pemasok</h3>
+                <div class="label-mono" id="purch-pay-meta">—</div>
+              </div>
+              <button type="button" class="btn btn-ghost btn-compact" onclick="closePurchPayDrawer()">Batal</button>
+            </div>
+            <form onsubmit="submitPurchPayment(event)">
+              <input type="hidden" id="purch-pay-inv-id">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="purch-pay-date">Tanggal Bayar</label>
+                  <input type="date" id="purch-pay-date" required>
+                </div>
+                <div class="field">
+                  <label for="purch-pay-account">Sumber Kas/Bank</label>
+                  <select id="purch-pay-account" required>
+                    <option value="1102">1102 — Bank BCA Operasional</option>
+                    <option value="1103">1103 — Bank Mandiri Bisnis</option>
+                    <option value="1101">1101 — Kas Tunai</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="purch-pay-amount">Nominal Dibayarkan (Rp)</label>
+                  <input type="number" id="purch-pay-amount" min="1" step="100" required>
+                </div>
+                <div class="field">
+                  <button type="submit" class="btn btn-primary btn-compact">Bayar Utang</button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="toolbar">
+            <div class="toolbar-group">
+              <div class="field">
+                <label for="purch-filter-search">Cari Faktur / Pemasok</label>
+                <input type="text" id="purch-filter-search" placeholder="FB-2611..." oninput="renderPurchasingModule()">
+              </div>
+              <div class="field">
+                <label for="purch-filter-status">Status Utang</label>
+                <select id="purch-filter-status" onchange="renderPurchasingModule()">
+                  <option value="ALL">Semua Status</option>
+                  <option value="UNPAID">Belum Lunas</option>
+                  <option value="PARTIAL">Dibayar Sebagian</option>
+                  <option value="PAID">Lunas</option>
+                </select>
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary btn-compact" onclick="switchSubTab('purchasing', 'purch-new')">+ Faktur Pembelian Baru</button>
+          </div>
+
+          <div class="table-scroll">
+            <table class="carbon-table">
+              <thead>
+                <tr>
+                  <th>No. Faktur</th>
+                  <th>Tanggal</th>
+                  <th>Pemasok</th>
+                  <th>Rincian Barang</th>
+                  <th class="num">Total Faktur</th>
+                  <th class="num">Dibayar</th>
+                  <th class="num">Sisa Utang</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="purch-invoices-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Subtab: Buat Pembelian Baru -->
+        <div id="subpanel-purch-new" class="subpanel" style="display:none;">
+          <div class="layer">
+            <div class="section-head">
+              <div>
+                <h3 class="subhead-title">Catat Faktur Pembelian Barang</h3>
+                <div class="label-mono">Otomatis menambah stok gudang, menghitung rata-rata harga pokok &amp; mencatat jurnal</div>
+              </div>
+            </div>
+            <form id="form-new-purch" onsubmit="submitNewPurchase(event)">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="purch-supplier">Pemasok (Supplier)</label>
+                  <select id="purch-supplier" required></select>
+                </div>
+                <div class="field">
+                  <label for="purch-date">Tanggal Pembelian</label>
+                  <input type="date" id="purch-date" required>
+                </div>
+                <div class="field">
+                  <label for="purch-payment-mode">Metode Pembayaran</label>
+                  <select id="purch-payment-mode" onchange="togglePurchCashAccount()">
+                    <option value="CREDIT">Kredit / Tempo (Utang Usaha)</option>
+                    <option value="CASH">Tunai / Transfer Langsung (Lunas)</option>
+                  </select>
+                </div>
+                <div class="field" id="purch-cash-account-wrap" style="display:none;">
+                  <label for="purch-cash-account">Bayar dari Akun</label>
+                  <select id="purch-cash-account">
+                    <option value="1102">1102 — Bank BCA Operasional</option>
+                    <option value="1103">1103 — Bank Mandiri Bisnis</option>
+                    <option value="1101">1101 — Kas Tunai</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="line-items-wrap">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span class="label-mono">Daftar Barang Dibeli</span>
+                  <button type="button" class="btn btn-secondary btn-compact" onclick="addPurchLineRow()">+ Tambah Baris Barang</button>
+                </div>
+                <div id="purch-lines-container"></div>
+              </div>
+
+              <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:var(--space-md); margin-top:var(--space-lg); padding-top:var(--space-md); border-top:var(--rule);">
+                <div>
+                  <div class="label-mono">Total Faktur Pembelian</div>
+                  <div class="kpi-value" id="purch-grand-total">Rp 0</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Simpan Pembelian &amp; Tambah Stok</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Subtab: Master Pemasok -->
+        <div id="subpanel-purch-suppliers" class="subpanel" style="display:none;">
+          <div class="split-5-7">
+            <div class="layer">
+              <div class="section-head">
+                <h3 class="subhead-title">Tambah Pemasok Baru</h3>
+              </div>
+              <form onsubmit="submitNewSupplier(event)" style="display:flex; flex-direction:column; gap:var(--space-md);">
+                <div class="field">
+                  <label for="sup-name">Nama Pemasok</label>
+                  <input type="text" id="sup-name" placeholder="Contoh: PT Biji Kopi Makmur" required>
+                </div>
+                <div class="field">
+                  <label for="sup-category">Kategori Pasokan</label>
+                  <select id="sup-category">
+                    <option value="Bahan Baku F&amp;B">Bahan Baku F&amp;B</option>
+                    <option value="Kemasan &amp; Perlengkapan">Kemasan &amp; Perlengkapan</option>
+                    <option value="Mesin &amp; Peralatan">Mesin &amp; Peralatan</option>
+                    <option value="Logistik &amp; Umum">Logistik &amp; Umum</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="sup-city">Kota</label>
+                  <input type="text" id="sup-city" placeholder="Bandung" required>
+                </div>
+                <div class="field">
+                  <label for="sup-phone">Kontak / Telepon</label>
+                  <input type="text" id="sup-phone" placeholder="022-7501234" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Simpan Pemasok</button>
+              </form>
+            </div>
+
+            <div class="layer-bordered">
+              <div class="section-head">
+                <h3 class="subhead-title">Direktori Pemasok Terdaftar</h3>
+              </div>
+              <div class="table-scroll">
+                <table class="carbon-table">
+                  <thead>
+                    <tr>
+                      <th>Kode</th>
+                      <th>Nama Pemasok</th>
+                      <th>Kategori</th>
+                      <th>Kota</th>
+                      <th class="num">Total Pembelian</th>
+                      <th class="num">Sisa Utang</th>
+                    </tr>
+                  </thead>
+                  <tbody id="suppliers-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 4. MODUL PERSEDIAAN ==================== -->
+      <section id="module-inventory" class="module-panel" aria-label="Modul Persediaan">
+        <div class="section-head">
+          <div>
+            <h2 class="headline-section">Modul <strong>Persediaan</strong></h2>
+            <div class="label-mono">Master Barang · Valuasi Stok Rata-Rata · Penyesuaian Persediaan</div>
+          </div>
+        </div>
+
+        <div class="kpi-grid" id="inv-kpis"></div>
+
+        <div class="sub-tabs" role="tablist">
+          <button type="button" class="sub-tab-btn is-active" data-subtab="inv-master" onclick="switchSubTab('inventory', 'inv-master')">Daftar Master Barang</button>
+          <button type="button" class="sub-tab-btn" data-subtab="inv-add" onclick="switchSubTab('inventory', 'inv-add')">+ Tambah Barang Baru</button>
+          <button type="button" class="sub-tab-btn" data-subtab="inv-adjust" onclick="switchSubTab('inventory', 'inv-adjust')">Penyesuaian Persediaan (Opname)</button>
+        </div>
+
+        <!-- Subtab: Master Barang -->
+        <div id="subpanel-inv-master" class="subpanel">
+          <div class="toolbar">
+            <div class="toolbar-group">
+              <div class="field">
+                <label for="inv-filter-search">Cari SKU atau Nama Barang</label>
+                <input type="text" id="inv-filter-search" placeholder="BRG-001 atau Kopi..." oninput="renderInventoryModule()">
+              </div>
+              <div class="field">
+                <label for="inv-filter-cat">Kategori</label>
+                <select id="inv-filter-cat" onchange="renderInventoryModule()">
+                  <option value="ALL">Semua Kategori</option>
+                  <option value="Bahan Baku">Bahan Baku</option>
+                  <option value="Kemasan">Kemasan</option>
+                  <option value="Peralatan">Peralatan</option>
+                </select>
+              </div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-compact" onclick="switchSubTab('inventory', 'inv-adjust')">Catat Stock Opname</button>
+          </div>
+
+          <div class="table-scroll">
+            <table class="carbon-table">
+              <thead>
+                <tr>
+                  <th>SKU</th>
+                  <th>Nama Barang</th>
+                  <th>Kategori</th>
+                  <th>Satuan</th>
+                  <th class="num">Stok</th>
+                  <th class="num">Harga Beli (Avg)</th>
+                  <th class="num">Harga Jual</th>
+                  <th class="num">Nilai Persediaan</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="inventory-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Subtab: Tambah Barang Baru -->
+        <div id="subpanel-inv-add" class="subpanel" style="display:none;">
+          <div class="layer">
+            <div class="section-head">
+              <div>
+                <h3 class="subhead-title">Registrasi Master Barang Baru</h3>
+                <div class="label-mono">Jika mengisi stok awal &gt; 0, sistem otomatis mencatat jurnal Saldo Awal Persediaan ke Modal Disetor</div>
+              </div>
+            </div>
+            <form onsubmit="submitNewItem(event)">
+              <div class="form-grid">
+                <div class="field">
+                  <label for="item-name">Nama Barang</label>
+                  <input type="text" id="item-name" placeholder="Contoh: Susu Oat Barista 1L" required>
+                </div>
+                <div class="field">
+                  <label for="item-cat">Kategori</label>
+                  <select id="item-cat">
+                    <option value="Bahan Baku">Bahan Baku</option>
+                    <option value="Kemasan">Kemasan</option>
+                    <option value="Peralatan">Peralatan</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="item-unit">Satuan</label>
+                  <input type="text" id="item-unit" value="Pcs" required>
+                </div>
+                <div class="field">
+                  <label for="item-buy">Harga Beli Standar (Rp)</label>
+                  <input type="number" id="item-buy" min="100" step="100" required>
+                </div>
+                <div class="field">
+                  <label for="item-sell">Harga Jual (Rp)</label>
+                  <input type="number" id="item-sell" min="100" step="100" required>
+                </div>
+                <div class="field">
+                  <label for="item-qty">Stok Awal (Opsional)</label>
+                  <input type="number" id="item-qty" min="0" value="0" required>
+                </div>
+                <div class="field">
+                  <label for="item-min">Batas Minimum Stok</label>
+                  <input type="number" id="item-min" min="1" value="10" required>
+                </div>
+                <div class="field">
+                  <button type="submit" class="btn btn-primary btn-compact">Simpan Barang</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Subtab: Penyesuaian Persediaan -->
+        <div id="subpanel-inv-adjust" class="subpanel" style="display:none;">
+          <div class="split-5-7">
+            <div class="layer">
+              <div class="section-head">
+                <div>
+                  <h3 class="subhead-title">Form Penyesuaian Persediaan</h3>
+                  <div class="label-mono">Mencatat Jurnal Selisih Stok ke Akun 6103</div>
+                </div>
+              </div>
+              <form onsubmit="submitInventoryAdjustment(event)" style="display:flex; flex-direction:column; gap:var(--space-md);">
+                <div class="field">
+                  <label for="adj-item">Pilih Barang</label>
+                  <select id="adj-item" required></select>
+                </div>
+                <div class="field">
+                  <label for="adj-date">Tanggal Penyesuaian</label>
+                  <input type="date" id="adj-date" required>
+                </div>
+                <div class="field">
+                  <label for="adj-type">Jenis Penyesuaian</label>
+                  <select id="adj-type">
+                    <option value="OUT">Pengurangan Stok (-) — Rusak / Hilang / Opname</option>
+                    <option value="IN">Penambahan Stok (+) — Temuan Opname / Bonus</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="adj-qty">Jumlah Unit Selisih</label>
+                  <input type="number" id="adj-qty" min="1" value="1" required>
+                </div>
+                <div class="field">
+                  <label for="adj-note">Keterangan / Alasan</label>
+                  <input type="text" id="adj-note" placeholder="Contoh: Kemasan sobek saat pengiriman" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Proses Penyesuaian &amp; Jurnal</button>
+              </form>
+            </div>
+
+            <div class="layer-bordered">
+              <div class="section-head">
+                <h3 class="subhead-title">Riwayat Penyesuaian Persediaan</h3>
+              </div>
+              <div class="table-scroll">
+                <table class="carbon-table">
+                  <thead>
+                    <tr>
+                      <th>No. Ref</th>
+                      <th>Tanggal</th>
+                      <th>Barang</th>
+                      <th>Tipe</th>
+                      <th class="num">Qty</th>
+                      <th class="num">Nilai Dampak</th>
+                      <th>Alasan</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adj-history-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 5. MODUL KAS & BANK ==================== -->
+      <section id="module-cashbank" class="module-panel" aria-label="Modul Kas dan Bank">
+        <div class="section-head">
+          <div>
+            <h2 class="headline-section">Modul <strong>Kas &amp; Bank</strong></h2>
+            <div class="label-mono">Rekening Likuiditas · Penerimaan · Pengeluaran Beban · Transfer Internal</div>
+          </div>
+        </div>
+
+        <div class="kpi-grid-3" id="cb-account-cards"></div>
+
+        <div class="split-5-7">
+          <div class="layer">
+            <div class="section-head">
+              <div>
+                <h3 class="subhead-title">Catat Transaksi Kas &amp; Bank</h3>
+                <div class="label-mono">Otomatis memposting entri Buku Besar</div>
+              </div>
+            </div>
+            <form onsubmit="submitCashBankTx(event)" style="display:flex; flex-direction:column; gap:var(--space-md);">
+              <div class="field">
+                <label for="cb-type">Jenis Transaksi</label>
+                <select id="cb-type" onchange="updateCashBankContraOptions()">
+                  <option value="OUT">Pembayaran / Pengeluaran Kas &amp; Bank</option>
+                  <option value="IN">Penerimaan Kas &amp; Bank</option>
+                  <option value="TRANSFER">Transfer Antar Rekening Kas/Bank</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="cb-date">Tanggal Transaksi</label>
+                <input type="date" id="cb-date" required>
+              </div>
+              <div class="field">
+                <label for="cb-account" id="cb-account-label">Dari Akun Kas/Bank</label>
+                <select id="cb-account" required>
+                  <option value="1102">1102 — Bank BCA Operasional</option>
+                  <option value="1103">1103 — Bank Mandiri Bisnis</option>
+                  <option value="1101">1101 — Kas Tunai</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="cb-contra" id="cb-contra-label">Akun Lawan (Kategori Beban/Pendapatan)</label>
+                <select id="cb-contra" required></select>
+              </div>
+              <div class="field">
+                <label for="cb-amount">Nominal (Rp)</label>
+                <input type="number" id="cb-amount" min="100" step="100" placeholder="500000" required>
+              </div>
+              <div class="field">
+                <label for="cb-desc">Uraian Transaksi</label>
+                <input type="text" id="cb-desc" placeholder="Contoh: Pembayaran internet &amp; listrik November" required>
+              </div>
+              <button type="submit" class="btn btn-primary">Simpan Mutasi Kas &amp; Bank</button>
+            </form>
+          </div>
+
+          <div class="layer-bordered">
+            <div class="section-head">
+              <div>
+                <h3 class="subhead-title">Riwayat Mutasi Kas &amp; Bank</h3>
+                <div class="label-mono">Seluruh arus kas masuk &amp; keluar lintas modul</div>
+              </div>
+              <div class="field" style="min-width:200px;">
+                <label for="cb-filter-acc">Filter Rekening</label>
+                <select id="cb-filter-acc" onchange="renderCashBankModule()">
+                  <option value="ALL">Semua Kas &amp; Bank</option>
+                  <option value="1101">1101 — Kas Tunai</option>
+                  <option value="1102">1102 — Bank BCA Operasional</option>
+                  <option value="1103">1103 — Bank Mandiri Bisnis</option>
+                </select>
+              </div>
+            </div>
+            <div class="table-scroll">
+              <table class="carbon-table">
+                <thead>
+                  <tr>
+                    <th>Tanggal</th>
+                    <th>Referensi</th>
+                    <th>Rekening</th>
+                    <th>Keterangan</th>
+                    <th class="num">Masuk (Debit)</th>
+                    <th class="num">Keluar (Kredit)</th>
+                  </tr>
+                </thead>
+                <tbody id="cb-ledger-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== 6. BUKU BESAR & LAPORAN ==================== -->
+      <section id="module-ledger" class="module-panel" aria-label="Buku Besar dan Laporan Keuangan">
+        <div class="section-head">
+          <div>
+            <h2 class="headline-section">Buku Besar &amp; <strong>Laporan Keuangan</strong></h2>
+            <div class="label-mono">Jurnal Otomatis Double-Entry · Laporan Laba Rugi · Neraca Keuangan Real-Time</div>
+          </div>
+        </div>
+
+        <div class="sub-tabs" role="tablist">
+          <button type="button" class="sub-tab-btn is-active" data-subtab="ledger-journal" onclick="switchSubTab('ledger', 'ledger-journal')">Buku Besar &amp; Jurnal Umum</button>
+          <button type="button" class="sub-tab-btn" data-subtab="ledger-pnl" onclick="switchSubTab('ledger', 'ledger-pnl')">Laporan Laba Rugi</button>
+          <button type="button" class="sub-tab-btn" data-subtab="ledger-bs" onclick="switchSubTab('ledger', 'ledger-bs')">Neraca Keuangan</button>
+        </div>
+
+        <!-- Subtab: Jurnal Umum & Buku Besar -->
+        <div id="subpanel-ledger-journal" class="subpanel">
+          <div class="layer" style="margin-bottom:var(--space-md); display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:var(--space-md);">
+            <div style="display:flex; flex-wrap:wrap; gap:var(--space-xl);">
+              <div>
+                <div class="label-mono">Total Debit Jurnal</div>
+                <div class="fin-amt" style="font-size:1.25rem;" id="gl-total-debit">Rp 0</div>
+              </div>
+              <div>
+                <div class="label-mono">Total Kredit Jurnal</div>
+                <div class="fin-amt" style="font-size:1.25rem;" id="gl-total-credit">Rp 0</div>
+              </div>
+              <div>
+                <div class="label-mono">Status Keseimbangan</div>
+                <div id="gl-balance-status"></div>
+              </div>
+            </div>
+
+            <div class="toolbar-group">
+              <div class="field">
+                <label for="gl-filter-account">Filter Akun COA</label>
+                <select id="gl-filter-account" onchange="renderLedgerModule()"></select>
+              </div>
+              <div class="field">
+                <label for="gl-filter-source">Sumber Modul</label>
+                <select id="gl-filter-source" onchange="renderLedgerModule()">
+                  <option value="ALL">Semua Modul</option>
+                  <option value="SALDO_AWAL">Saldo Awal</option>
+                  <option value="PENJUALAN">Penjualan</option>
+                  <option value="PEMBELIAN">Pembelian</option>
+                  <option value="PERSEDIAAN">Persediaan</option>
+                  <option value="KAS_BANK">Kas &amp; Bank</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-scroll">
+            <table class="carbon-table">
+              <thead>
+                <tr>
+                  <th>ID Jurnal</th>
+                  <th>Tanggal</th>
+                  <th>Modul / Ref</th>
+                  <th>Akun</th>
+                  <th>Keterangan</th>
+                  <th class="num">Debit</th>
+                  <th class="num">Kredit</th>
+                </tr>
+              </thead>
+              <tbody id="gl-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Subtab: Laporan Laba Rugi -->
+        <div id="subpanel-ledger-pnl" class="subpanel" style="display:none;">
+          <div class="split-6-6">
+            <div class="layer-bordered">
+              <div class="section-head">
+                <div>
+                  <h3 class="subhead-title">Laporan Laba Rugi (Income Statement)</h3>
+                  <div class="label-mono">PT Nusantara Niaga Sejahtera · Periode November 2026</div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-compact" onclick="exportFinancialReportCsv('PNL')">Ekspor CSV</button>
+              </div>
+              <div class="fin-statement" id="pnl-container"></div>
+            </div>
+
+            <div class="layer-bordered">
+              <div class="section-head">
+                <div>
+                  <h3 class="subhead-title">Struktur Pendapatan, HPP &amp; Beban</h3>
+                  <div class="label-mono">Visualisasi Proporsi Profitabilitas</div>
+                </div>
+              </div>
+              <div class="chart-box">
+                <canvas id="chart-pnl"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subtab: Neraca Keuangan -->
+        <div id="subpanel-ledger-bs" class="subpanel" style="display:none;">
+          <div class="layer" style="margin-bottom:var(--space-md); display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:var(--space-md);">
+            <div>
+              <h3 class="subhead-title">Neraca Keuangan (Balance Sheet) — Posisi Per Hari Ini</h3>
+              <div class="label-mono">Persamaan Akuntansi: Aset = Liabilitas + Ekuitas</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:var(--space-md);">
+              <span id="bs-balance-badge"></span>
+              <button type="button" class="btn btn-secondary btn-compact" onclick="exportFinancialReportCsv('BS')">Ekspor CSV</button>
+            </div>
+          </div>
+
+          <div class="split-6-6">
+            <div class="layer-bordered">
+              <div class="section-head">
+                <h4 class="subhead-title">ASET (Aktiva)</h4>
+              </div>
+              <div class="fin-statement" id="bs-assets-container"></div>
+            </div>
+
+            <div class="layer-bordered">
+              <div class="section-head">
+                <h4 class="subhead-title">LIABILITAS &amp; EKUITAS (Pasiva)</h4>
+              </div>
+              <div class="fin-statement" id="bs-liab-equity-container"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span>Simulasi Sistem Informasi Akuntansi &amp; Bisnis Terintegrasi · Standar Double-Entry Berbasis Web</span>
+      <span class="label-mono">Data tersimpan otomatis pada sesi workspace Anda</span>
+    </footer>
+  </div>
+
+  <api-shim></api-shim>
+  <script>
+    'use strict';
+
+    // =========================================================================
+    // 1. CHART OF ACCOUNTS (DAFTAR AKUN) & KONFIGURASI SISTEM
+    // =========================================================================
+    const COA = [
+      { code: `1101`, name: `Kas Tunai`, category: `ASET_LANCAR`, normal: `DEBIT` },
+      { code: `1102`, name: `Bank BCA Operasional`, category: `ASET_LANCAR`, normal: `DEBIT` },
+      { code: `1103`, name: `Bank Mandiri Bisnis`, category: `ASET_LANCAR`, normal: `DEBIT` },
+      { code: `1201`, name: `Piutang Usaha`, category: `ASET_LANCAR`, normal: `DEBIT` },
+      { code: `1301`, name: `Persediaan Barang Dagang`, category: `ASET_LANCAR`, normal: `DEBIT` },
+      { code: `1501`, name: `Peralatan & Aset Tetap`, category: `ASET_TETAP`, normal: `DEBIT` },
+      { code: `2101`, name: `Utang Usaha`, category: `LIABILITAS`, normal: `CREDIT` },
+      { code: `3101`, name: `Modal Disetor`, category: `EKUITAS`, normal: `CREDIT` },
+      { code: `3201`, name: `Laba Ditahan`, category: `EKUITAS`, normal: `CREDIT` },
+      { code: `4101`, name: `Pendapatan Penjualan`, category: `PENDAPATAN`, normal: `CREDIT` },
+      { code: `4201`, name: `Pendapatan Jasa & Lainnya`, category: `PENDAPATAN_LAIN`, normal: `CREDIT` },
+      { code: `5101`, name: `Harga Pokok Penjualan (HPP)`, category: `HPP`, normal: `DEBIT` },
+      { code: `6101`, name: `Beban Operasional & Gaji`, category: `BEBAN`, normal: `DEBIT` },
+      { code: `6102`, name: `Beban Utilitas & Sewa`, category: `BEBAN`, normal: `DEBIT` },
+      { code: `6103`, name: `Beban Penyesuaian Persediaan`, category: `BEBAN`, normal: `DEBIT` }
+    ];
+
+    const COA_MAP = Object.fromEntries(COA.map(a => [a.code, a]));
+
+    const TODAY_ISO = `2026-11-17`;
+    let appState = buildSeedSimulationState();
+    let activeModule = `dashboard`;
+    const activeSubTabs = {
+      sales: `sales-list`,
+      purchasing: `purch-list`,
+      inventory: `inv-master`,
+      ledger: `ledger-journal`
+    };
+    const chartInstances = {
+      cashflow: null,
+      accounts: null,
+      pnl: null
+    };
+
+    // =========================================================================
+    // 2. PEMFORMATAN & UTILITAS
+    // =========================================================================
+    function formatRp(amount) {
+      const val = Math.round(Number(amount) || 0);
+      const abs = Math.abs(val).toLocaleString(`id-ID`);
+      return val < 0 ? `-Rp ${abs}` : `Rp ${abs}`;
+    }
+
+    function formatShortDate(iso) {
+      if (!iso) return `-`;
+      const parts = iso.split(`-`);
+      if (parts.length !== 3) return iso;
+      const months = [`Jan`, `Feb`, `Mar`, `Apr`, `Mei`, `Jun`, `Jul`, `Agu`, `Sep`, `Okt`, `Nov`, `Des`];
+      const mIdx = parseInt(parts[1], 10) - 1;
+      return `${parts[2]} ${months[mIdx] || parts[1]} ${parts[0]}`;
+    }
+
+    function getCssToken(name) {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? ``)
+        .replace(/&/g, `&amp;`)
+        .replace(/</g, `&lt;`)
+        .replace(/>/g, `&gt;`)
+        .replace(/"/g, `&quot;`)
+        .replace(/'/g, `&#39;`);
+    }
+
+    function nextCode(prefix, list, field) {
+      let maxNum = 0;
+      list.forEach(item => {
+        const raw = String(item[field] || ``);
+        const match = raw.match(/(\d+)$/);
+        if (match) {
+          const n = parseInt(match[1], 10);
+          if (n > maxNum) maxNum = n;
+        }
+      });
+      return `${prefix}${String(maxNum + 1).padStart(3, `0`)}`;
+    }
+
+    function showToast(message, tone = `info`) {
+      const box = document.getElementById(`global-toast`);
+      const textEl = document.getElementById(`global-toast-text`);
+      if (!box || !textEl) return;
+      box.classList.remove(`is-positive`, `is-warning`, `is-error`, `is-visible`);
+      if (tone === `positive`) box.classList.add(`is-positive`);
+      if (tone === `warning`) box.classList.add(`is-warning`);
+      if (tone === `error`) box.classList.add(`is-error`);
+      textEl.textContent = message;
+      box.classList.add(`is-visible`);
+    }
+
+    function hideToast() {
+      const box = document.getElementById(`global-toast`);
+      if (box) box.classList.remove(`is-visible`);
+    }
+
+    // =========================================================================
+    // 3. MESIN AKUNTANSI (DOUBLE-ENTRY JOURNAL ENGINE) & SEED DATA
+    // =========================================================================
+    function createEmptyState() {
+      return {
+        customers: [
+          { id: `CUST-001`, name: `Kopi Senja Roastery`, segment: `F&B / Kafe`, city: `Jakarta Selatan`, phone: `0812-8810-4401` },
+          { id: `CUST-002`, name: `Bistro Harmoni Jakarta`, segment: `F&B / Kafe`, city: `Jakarta Pusat`, phone: `0811-9023-1120` },
+          { id: `CUST-003`, name: `Toko Bahan Kue Lestari`, segment: `Retail / Toko`, city: `Bekasi`, phone: `0813-4421-9800` },
+          { id: `CUST-004`, name: `Kopi Kita Nusantara (Cabang Bandung)`, segment: `Distributor / Reseller`, city: `Bandung`, phone: `0815-7721-3309` }
+        ],
+        suppliers: [
+          { id: `SUP-001`, name: `CV Agro Kopi Nusantara`, category: `Bahan Baku F&B`, city: `Medan`, phone: `061-4529910` },
+          { id: `SUP-002`, name: `PT Kemasan Prima Jaya`, category: `Kemasan & Perlengkapan`, city: `Tangerang`, phone: `021-5578821` },
+          { id: `SUP-003`, name: `PT Matcha & Sirup Sejahtera`, category: `Bahan Baku F&B`, city: `Surabaya`, phone: `031-8432201` }
+        ],
+        items: [
+          { id: `BRG-001`, name: `Kopi Arabika Gayo 1kg`, category: `Bahan Baku`, unit: `Kg`, qty: 120, stockValue: 15000000, sellPrice: 185000, minStock: 30 },
+          { id: `BRG-002`, name: `Teh Matcha Uji Premium 500g`, category: `Bahan Baku`, unit: `Pack`, qty: 80, stockValue: 14000000, sellPrice: 260000, minStock: 20 },
+          { id: `BRG-003`, name: `Sirup Karamel Artisan 750ml`, category: `Bahan Baku`, unit: `Botol`, qty: 150, stockValue: 12000000, sellPrice: 125000, minStock: 35 },
+          { id: `BRG-004`, name: `Cup Paper Double Wall 12oz (Isi 50)`, category: `Kemasan`, unit: `Pack`, qty: 200, stockValue: 9000000, sellPrice: 68000, minStock: 50 },
+          { id: `BRG-005`, name: `Mesin Grinder Komersial G-64`, category: `Peralatan`, unit: `Unit`, qty: 4, stockValue: 12000000, sellPrice: 4450000, minStock: 2 }
+        ],
+        salesInvoices: [],
+        purchaseInvoices: [],
+        cashTransactions: [],
+        adjustments: [],
+        journals: []
+      };
+    }
+
+    function postJournal(state, { date, source, ref, description, lines }) {
+      const cleanLines = lines
+        .map(l => ({
+          accountCode: l.accountCode,
+          debit: Math.round(Number(l.debit) || 0),
+          credit: Math.round(Number(l.credit) || 0)
+        }))
+        .filter(l => l.debit > 0 || l.credit > 0);
+
+      const sumD = cleanLines.reduce((acc, l) => acc + l.debit, 0);
+      const sumC = cleanLines.reduce((acc, l) => acc + l.credit, 0);
+      if (sumD !== sumC || sumD === 0) {
+        throw new Error(`Jurnal tidak seimbang (${ref}): Debit ${sumD} vs Kredit ${sumC}`);
+      }
+
+      const id = nextCode(`JRN-`, state.journals, `id`);
+      state.journals.push({
+        id,
+        date,
+        source,
+        ref,
+        description,
+        lines: cleanLines
+      });
+      return id;
+    }
+
+    function executeSale(state, { customerId, date, paymentMode, cashAccount, lineInputs }) {
+      const customer = state.customers.find(c => c.id === customerId);
+      if (!customer) throw new Error(`Pelanggan tidak ditemukan.`);
+      if (!lineInputs || lineInputs.length === 0) throw new Error(`Minimal 1 barang harus dipilih.`);
+
+      // Validasi stok agregat per barang
+      const qtyByItem = {};
+      for (const line of lineInputs) {
+        if (!line.itemId || line.qty <= 0 || line.unitPrice <= 0) {
+          throw new Error(`Pastikan barang, kuantitas, dan harga jual valid.`);
+        }
+        qtyByItem[line.itemId] = (qtyByItem[line.itemId] || 0) + line.qty;
+      }
+      for (const [itemId, needQty] of Object.entries(qtyByItem)) {
+        const item = state.items.find(i => i.id === itemId);
+        if (!item) throw new Error(`Barang tidak ditemukan.`);
+        if (item.qty < needQty) {
+          throw new Error(`Stok ${item.name} tidak mencukupi (tersedia ${item.qty} ${item.unit}, diminta ${needQty}).`);
+        }
+      }
+
+      let totalAmount = 0;
+      let totalCogs = 0;
+      const resolvedLines = [];
+
+      for (const line of lineInputs) {
+        const item = state.items.find(i => i.id === line.itemId);
+        const avgCost = item.qty > 0 ? item.stockValue / item.qty : 0;
+        const lineCogs = line.qty === item.qty ? item.stockValue : Math.round(avgCost * line.qty);
+        const lineTotal = Math.round(line.qty * line.unitPrice);
+
+        item.qty -= line.qty;
+        item.stockValue = Math.max(0, item.stockValue - lineCogs);
+
+        totalAmount += lineTotal;
+        totalCogs += lineCogs;
+        resolvedLines.push({
+          itemId: item.id,
+          itemName: item.name,
+          qty: line.qty,
+          unitPrice: Math.round(line.unitPrice),
+          lineTotal,
+          lineCogs
+        });
+      }
+
+      const invId = nextCode(`INV-2611-`, state.salesInvoices, `id`);
+
+      state.salesInvoices.push({
+        id: invId,
+        date,
+        customerId: customer.id,
+        customerName: customer.name,
+        lines: resolvedLines,
+        totalAmount,
+        totalCogs,
+        paidAmount: 0
+      });
+
+      // Jurnal Penjualan + HPP
+      postJournal(state, {
+        date,
+        source: `PENJUALAN`,
+        ref: invId,
+        description: `Faktur Penjualan ${invId} — ${customer.name}`,
+        lines: [
+          { accountCode: `1201`, debit: totalAmount, credit: 0 },
+          { accountCode: `4101`, debit: 0, credit: totalAmount },
+          { accountCode: `5101`, debit: totalCogs, credit: 0 },
+          { accountCode: `1301`, debit: 0, credit: totalCogs }
+        ]
+      });
+
+      if (paymentMode === `CASH`) {
+        executeSalesPayment(state, {
+          invoiceId: invId,
+          date,
+          accountCode: cashAccount || `1102`,
+          amount: totalAmount,
+          isAutoFromSale: true
+        });
+      }
+
+      return invId;
+    }
+
+    function executeSalesPayment(state, { invoiceId, date, accountCode, amount }) {
+      const inv = state.salesInvoices.find(i => i.id === invoiceId);
+      if (!inv) throw new Error(`Faktur penjualan tidak ditemukan.`);
+      const remaining = inv.totalAmount - inv.paidAmount;
+      const payVal = Math.round(Number(amount) || 0);
+      if (payVal <= 0 || payVal > remaining) {
+        throw new Error(`Nominal pembayaran harus antara Rp 1 dan sisa piutang (${formatRp(remaining)}).`);
+      }
+
+      inv.paidAmount += payVal;
+      const payRef = nextCode(`PAY-IN-`, state.cashTransactions, `id`);
+      const desc = `Penerimaan pembayaran ${inv.id} (${inv.customerName})`;
+
+      state.cashTransactions.push({
+        id: payRef,
+        date,
+        type: `IN`,
+        accountCode,
+        contraAccountCode: `1201`,
+        amount: payVal,
+        ref: inv.id,
+        description: desc
+      });
+
+      postJournal(state, {
+        date,
+        source: `PENJUALAN`,
+        ref: payRef,
+        description: desc,
+        lines: [
+          { accountCode, debit: payVal, credit: 0 },
+          { accountCode: `1201`, debit: 0, credit: payVal }
+        ]
+      });
+
+      return payRef;
+    }
+
+    function executePurchase(state, { supplierId, date, paymentMode, cashAccount, lineInputs }) {
+      const supplier = state.suppliers.find(s => s.id === supplierId);
+      if (!supplier) throw new Error(`Pemasok tidak ditemukan.`);
+      if (!lineInputs || lineInputs.length === 0) throw new Error(`Minimal 1 barang harus dipilih.`);
+
+      let totalAmount = 0;
+      const resolvedLines = [];
+
+      for (const line of lineInputs) {
+        if (!line.itemId || line.qty <= 0 || line.unitCost <= 0) {
+          throw new Error(`Pastikan barang, kuantitas, dan harga beli valid.`);
+        }
+        const item = state.items.find(i => i.id === line.itemId);
+        if (!item) throw new Error(`Barang tidak ditemukan.`);
+
+        const lineTotal = Math.round(line.qty * line.unitCost);
+        item.qty += line.qty;
+        item.stockValue += lineTotal;
+
+        totalAmount += lineTotal;
+        resolvedLines.push({
+          itemId: item.id,
+          itemName: item.name,
+          qty: line.qty,
+          unitCost: Math.round(line.unitCost),
+          lineTotal
+        });
+      }
+
+      const invId = nextCode(`FB-2611-`, state.purchaseInvoices, `id`);
+      state.purchaseInvoices.push({
+        id: invId,
+        date,
+        supplierId: supplier.id,
+        supplierName: supplier.name,
+        lines: resolvedLines,
+        totalAmount,
+        paidAmount: 0
+      });
+
+      postJournal(state, {
+        date,
+        source: `PEMBELIAN`,
+        ref: invId,
+        description: `Faktur Pembelian ${invId} — ${supplier.name}`,
+        lines: [
+          { accountCode: `1301`, debit: totalAmount, credit: 0 },
+          { accountCode: `2101`, debit: 0, credit: totalAmount }
+        ]
+      });
+
+      if (paymentMode === `CASH`) {
+        executePurchasePayment(state, {
+          invoiceId: invId,
+          date,
+          accountCode: cashAccount || `1102`,
+          amount: totalAmount
+        });
+      }
+
+      return invId;
+    }
+
+    function executePurchasePayment(state, { invoiceId, date, accountCode, amount }) {
+      const inv = state.purchaseInvoices.find(i => i.id === invoiceId);
+      if (!inv) throw new Error(`Faktur pembelian tidak ditemukan.`);
+      const remaining = inv.totalAmount - inv.paidAmount;
+      const payVal = Math.round(Number(amount) || 0);
+      if (payVal <= 0 || payVal > remaining) {
+        throw new Error(`Nominal pembayaran harus antara Rp 1 dan sisa utang (${formatRp(remaining)}).`);
+      }
+
+      inv.paidAmount += payVal;
+      const payRef = nextCode(`PAY-OUT-`, state.cashTransactions, `id`);
+      const desc = `Pembayaran utang ${inv.id} (${inv.supplierName})`;
+
+      state.cashTransactions.push({
+        id: payRef,
+        date,
+        type: `OUT`,
+        accountCode,
+        contraAccountCode: `2101`,
+        amount: payVal,
+        ref: inv.id,
+        description: desc
+      });
+
+      postJournal(state, {
+        date,
+        source: `PEMBELIAN`,
+        ref: payRef,
+        description: desc,
+        lines: [
+          { accountCode: `2101`, debit: payVal, credit: 0 },
+          { accountCode, debit: 0, credit: payVal }
+        ]
+      });
+
+      return payRef;
+    }
+
+    function executeInventoryAdjustment(state, { itemId, date, type, qty, note }) {
+      const item = state.items.find(i => i.id === itemId);
+      if (!item) throw new Error(`Barang tidak ditemukan.`);
+      const adjQty = Math.round(Number(qty) || 0);
+      if (adjQty <= 0) throw new Error(`Kuantitas penyesuaian harus lebih dari 0.`);
+      if (type === `OUT` && item.qty < adjQty) {
+        throw new Error(`Stok ${item.name} hanya ${item.qty} ${item.unit}, tidak bisa dikurangi ${adjQty}.`);
+      }
+
+      const avgCost = item.qty > 0 ? item.stockValue / item.qty : Math.round(item.sellPrice * 0.65);
+      const valImpact = (type === `OUT` && adjQty === item.qty)
+        ? item.stockValue
+        : Math.max(100, Math.round(avgCost * adjQty));
+
+      if (type === `OUT`) {
+        item.qty -= adjQty;
+        item.stockValue = Math.max(0, item.stockValue - valImpact);
+      } else {
+        item.qty += adjQty;
+        item.stockValue += valImpact;
+      }
+
+      const adjId = nextCode(`ADJ-2611-`, state.adjustments, `id`);
+      state.adjustments.push({
+        id: adjId,
+        date,
+        itemId: item.id,
+        itemName: item.name,
+        type,
+        qty: adjQty,
+        valueImpact: valImpact,
+        note
+      });
+
+      postJournal(state, {
+        date,
+        source: `PERSEDIAAN`,
+        ref: adjId,
+        description: `Penyesuaian Stok ${item.name} (${type === `OUT` ? `-` : `+`}${adjQty} ${item.unit}): ${note}`,
+        lines: type === `OUT`
+          ? [
+              { accountCode: `6103`, debit: valImpact, credit: 0 },
+              { accountCode: `1301`, debit: 0, credit: valImpact }
+            ]
+          : [
+              { accountCode: `1301`, debit: valImpact, credit: 0 },
+              { accountCode: `4201`, debit: 0, credit: valImpact }
+            ]
+      });
+
+      return adjId;
+    }
+
+    function executeCashBankTx(state, { date, type, accountCode, contraAccountCode, amount, description }) {
+      const val = Math.round(Number(amount) || 0);
+      if (val <= 0) throw new Error(`Nominal transaksi harus lebih dari 0.`);
+      if (type === `TRANSFER` && accountCode === contraAccountCode) {
+        throw new Error(`Rekening asal dan rekening tujuan transfer tidak boleh sama.`);
+      }
+
+      const txId = nextCode(`KB-2611-`, state.cashTransactions, `id`);
+
+      if (type === `TRANSFER`) {
+        // Transfer keluar dari accountCode ke contraAccountCode
+        state.cashTransactions.push({
+          id: txId,
+          date,
+          type: `OUT`,
+          accountCode,
+          contraAccountCode,
+          amount: val,
+          ref: txId,
+          description: `Transfer keluar ke ${COA_MAP[contraAccountCode]?.name || contraAccountCode}: ${description}`
+        });
+        state.cashTransactions.push({
+          id: `${txId}-R`,
+          date,
+          type: `IN`,
+          accountCode: contraAccountCode,
+          contraAccountCode: accountCode,
+          amount: val,
+          ref: txId,
+          description: `Transfer masuk dari ${COA_MAP[accountCode]?.name || accountCode}: ${description}`
+        });
+        postJournal(state, {
+          date,
+          source: `KAS_BANK`,
+          ref: txId,
+          description: `Transfer Dana: ${description}`,
+          lines: [
+            { accountCode: contraAccountCode, debit: val, credit: 0 },
+            { accountCode, debit: 0, credit: val }
+          ]
+        });
+      } else if (type === `IN`) {
+        state.cashTransactions.push({
+          id: txId,
+          date,
+          type: `IN`,
+          accountCode,
+          contraAccountCode,
+          amount: val,
+          ref: txId,
+          description
+        });
+        postJournal(state, {
+          date,
+          source: `KAS_BANK`,
+          ref: txId,
+          description,
+          lines: [
+            { accountCode, debit: val, credit: 0 },
+            { accountCode: contraAccountCode, debit: 0, credit: val }
+          ]
+        });
+      } else {
+        state.cashTransactions.push({
+          id: txId,
+          date,
+          type: `OUT`,
+          accountCode,
+          contraAccountCode,
+          amount: val,
+          ref: txId,
+          description
+        });
+        postJournal(state, {
+          date,
+          source: `KAS_BANK`,
+          ref: txId,
+          description,
+          lines: [
+            { accountCode: contraAccountCode, debit: val, credit: 0 },
+            { accountCode, debit: 0, credit: val }
+          ]
+        });
+      }
+
+      return txId;
+    }
+
+    function buildSeedSimulationState() {
+      const s = createEmptyState();
+
+      // 1. Saldo Awal Neraca 01 Nov 2026 (nilai persediaan awal persis Rp 62.000.000)
+      postJournal(s, {
+        date: `2026-11-01`,
+        source: `SALDO_AWAL`,
+        ref: `SA-2026-11`,
+        description: `Saldo Awal Neraca Periode November 2026`,
+        lines: [
+          { accountCode: `1101`, debit: 18500000, credit: 0 },
+          { accountCode: `1102`, debit: 145000000, credit: 0 },
+          { accountCode: `1103`, debit: 64500000, credit: 0 },
+          { accountCode: `1301`, debit: 62000000, credit: 0 },
+          { accountCode: `1501`, debit: 85000000, credit: 0 },
+          { accountCode: `3101`, debit: 0, credit: 325000000 },
+          { accountCode: `3201`, debit: 0, credit: 50000000 }
+        ]
+      });
+
+      // 2. Pembelian Kredit 03 Nov + Pembayaran Sebagian 06 Nov
+      const fb1 = executePurchase(s, {
+        supplierId: `SUP-001`,
+        date: `2026-11-03`,
+        paymentMode: `CREDIT`,
+        lineInputs: [
+          { itemId: `BRG-001`, qty: 40, unitCost: 125000 },
+          { itemId: `BRG-003`, qty: 30, unitCost: 80000 }
+        ]
+      });
+      executePurchasePayment(s, {
+        invoiceId: fb1,
+        date: `2026-11-06`,
+        accountCode: `1102`,
+        amount: 4000000
+      });
+
+      // 3. Penjualan Tunai 05 Nov
+      executeSale(s, {
+        customerId: `CUST-001`,
+        date: `2026-11-05`,
+        paymentMode: `CASH`,
+        cashAccount: `1102`,
+        lineInputs: [
+          { itemId: `BRG-001`, qty: 35, unitPrice: 185000 },
+          { itemId: `BRG-003`, qty: 25, unitPrice: 125000 }
+        ]
+      });
+
+      // 4. Pembelian Tunai 08 Nov
+      executePurchase(s, {
+        supplierId: `SUP-002`,
+        date: `2026-11-08`,
+        paymentMode: `CASH`,
+        cashAccount: `1103`,
+        lineInputs: [
+          { itemId: `BRG-004`, qty: 100, unitCost: 45000 }
+        ]
+      });
+
+      // 5. Pengeluaran Kas/Bank Operasional 09 Nov & 11 Nov
+      executeCashBankTx(s, {
+        date: `2026-11-09`,
+        type: `OUT`,
+        accountCode: `1102`,
+        contraAccountCode: `6101`,
+        amount: 6500000,
+        description: `Pembayaran Gaji Staf Gudang & Penjualan`
+      });
+      executeCashBankTx(s, {
+        date: `2026-11-11`,
+        type: `OUT`,
+        accountCode: `1101`,
+        contraAccountCode: `6102`,
+        amount: 2250000,
+        description: `Tagihan Listrik, Internet & Kebersihan Gudang`
+      });
+
+      // 6. Penjualan Kredit 10 Nov + Penerimaan Sebagian 12 Nov
+      const inv2 = executeSale(s, {
+        customerId: `CUST-002`,
+        date: `2026-11-10`,
+        paymentMode: `CREDIT`,
+        lineInputs: [
+          { itemId: `BRG-002`, qty: 20, unitPrice: 260000 },
+          { itemId: `BRG-005`, qty: 1, unitPrice: 4450000 }
+        ]
+      });
+      executeSalesPayment(s, {
+        invoiceId: inv2,
+        date: `2026-11-12`,
+        accountCode: `1102`,
+        amount: 5000000
+      });
+
+      // 7. Penjualan Kredit 14 Nov (Belum Lunas)
+      executeSale(s, {
+        customerId: `CUST-003`,
+        date: `2026-11-14`,
+        paymentMode: `CREDIT`,
+        lineInputs: [
+          { itemId: `BRG-004`, qty: 80, unitPrice: 68000 },
+          { itemId: `BRG-003`, qty: 30, unitPrice: 125000 }
+        ]
+      });
+
+      // 8. Penerimaan Jasa Lain-lain 15 Nov
+      executeCashBankTx(s, {
+        date: `2026-11-15`,
+        type: `IN`,
+        accountCode: `1103`,
+        contraAccountCode: `4201`,
+        amount: 3500000,
+        description: `Jasa Pelatihan Kalibrasi Mesin & Barista`
+      });
+
+      // 9. Penyesuaian Persediaan 16 Nov
+      executeInventoryAdjustment(s, {
+        itemId: `BRG-004`,
+        date: `2026-11-16`,
+        type: `OUT`,
+        qty: 2,
+        note: `Kemasan penyok saat bongkar muat`
+      });
+
+      return s;
+    }
+
+    // =========================================================================
+    // 4. KALKULASI LAPORAN REAL-TIME DARI BUKU BESAR
+    // =========================================================================
+    function computeAccountBalances() {
+      const balances = {};
+      for (const acc of COA) {
+        balances[acc.code] = 0;
+      }
+      for (const j of appState.journals) {
+        for (const line of j.lines) {
+          const acc = COA_MAP[line.accountCode];
+          if (!acc) continue;
+          if (acc.normal === `DEBIT`) {
+            balances[line.accountCode] += (line.debit - line.credit);
+          } else {
+            balances[line.accountCode] += (line.credit - line.debit);
+          }
+        }
+      }
+      return balances;
+    }
+
+    function computeFinancialSummary() {
+      const bal = computeAccountBalances();
+      const kasBankTotal = bal[`1101`] + bal[`1102`] + bal[`1103`];
+      const piutangUsaha = bal[`1201`];
+      const persediaan = bal[`1301`];
+      const asetTetap = bal[`1501`];
+      const totalAsetLancar = kasBankTotal + piutangUsaha + persediaan;
+      const totalAset = totalAsetLancar + asetTetap;
+
+      const utangUsaha = bal[`2101`];
+      const modalDisetor = bal[`3101`];
+      const labaDitahan = bal[`3201`];
+
+      const penjualan = bal[`4101`];
+      const pendapatanLain = bal[`4201`];
+      const hpp = bal[`5101`];
+      const labaKotor = penjualan - hpp;
+      const bebanOps = bal[`6101`] + bal[`6102`] + bal[`6103`];
+      const labaBersih = labaKotor + pendapatanLain - bebanOps;
+
+      const totalEkuitas = modalDisetor + labaDitahan + labaBersih;
+      const totalLiabEkuitas = utangUsaha + totalEkuitas;
+
+      const totalPembelian = appState.purchaseInvoices.reduce((s, p) => s + p.totalAmount, 0);
+
+      return {
+        bal,
+        kasBankTotal,
+        piutangUsaha,
+        persediaan,
+        asetTetap,
+        totalAsetLancar,
+        totalAset,
+        utangUsaha,
+        modalDisetor,
+        labaDitahan,
+        penjualan,
+        pendapatanLain,
+        hpp,
+        labaKotor,
+        bebanOps,
+        labaBersih,
+        totalEkuitas,
+        totalLiabEkuitas,
+        totalPembelian,
+        selisihNeraca: totalAset - totalLiabEkuitas
+      };
+    }
+
+    // =========================================================================
+    // 5. PERSISTENSI STATE (notebookAppApi)
+    // =========================================================================
+    async function persistState() {
+      if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === `function`) {
+        try {
+          await window.notebookAppApi.setAppState(appState);
+        } catch (err) {
+          console.warn(`Gagal menyimpan state:`, err);
+        }
+      }
+    }
+
+    async function loadInitialState() {
+      if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === `function`) {
+        try {
+          const saved = await window.notebookAppApi.getAppState();
+          if (saved && Array.isArray(saved.journals) && Array.isArray(saved.items)) {
+            return saved;
+          }
+        } catch (err) {
+          console.warn(`Gagal memuat state:`, err);
+        }
+      }
+      return null;
+    }
+
+    async function handleResetSimulation(btn) {
+      if (!btn) return;
+      if (btn.dataset.armed !== `true`) {
+        btn.dataset.armed = `true`;
+        btn.innerHTML = `<span>Klik lagi untuk Reset</span><i data-lucide="alert-triangle" aria-hidden="true" width="16" height="16"></i>`;
+        if (window.lucide) window.lucide.createIcons();
+        setTimeout(() => {
+          if (btn.dataset.armed === `true`) {
+            btn.dataset.armed = `false`;
+            btn.innerHTML = `<span>Reset Simulasi</span><i data-lucide="rotate-ccw" aria-hidden="true" width="16" height="16"></i>`;
+            if (window.lucide) window.lucide.createIcons();
+          }
+        }, 4000);
+        return;
+      }
+
+      btn.dataset.armed = `false`;
+      btn.innerHTML = `<span>Reset Simulasi</span><i data-lucide="rotate-ccw" aria-hidden="true" width="16" height="16"></i>`;
+      appState = buildSeedSimulationState();
+      await persistState();
+      renderAll();
+      showToast(`Data simulasi berhasil dikembalikan ke kondisi awal November 2026.`, `positive`);
+    }
+
+    // =========================================================================
+    // 6. NAVIGASI MODUL & SUB-TAB
+    // =========================================================================
+    function switchModule(modName) {
+      activeModule = modName;
+      document.querySelectorAll(`.nav-tab-btn`).forEach(btn => {
+        btn.classList.toggle(`is-active`, btn.dataset.module === modName);
+      });
+      document.querySelectorAll(`.module-panel`).forEach(sec => {
+        sec.classList.toggle(`is-active`, sec.id === `module-${modName}`);
+      });
+
+      if (modName === `dashboard`) renderDashboard();
+      if (modName === `sales`) renderSalesModule();
+      if (modName === `purchasing`) renderPurchasingModule();
+      if (modName === `inventory`) renderInventoryModule();
+      if (modName === `cashbank`) renderCashBankModule();
+      if (modName === `ledger`) renderLedgerModule();
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function switchSubTab(modName, subTabKey) {
+      activeSubTabs[modName] = subTabKey;
+      const section = document.getElementById(`module-${modName}`);
+      if (!section) return;
+      section.querySelectorAll(`.sub-tab-btn`).forEach(btn => {
+        btn.classList.toggle(`is-active`, btn.dataset.subtab === subTabKey);
+      });
+      section.querySelectorAll(`.subpanel`).forEach(panel => {
+        panel.style.display = panel.id === `subpanel-${subTabKey}` ? `block` : `none`;
+      });
+
+      if (modName === `ledger` && subTabKey === `ledger-pnl`) {
+        renderPnLChart();
+      }
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function quickJump(modName, subTabKey) {
+      switchModule(modName);
+      if (subTabKey && activeSubTabs[modName] !== undefined) {
+        switchSubTab(modName, subTabKey);
+      }
+    }
+
+    // =========================================================================
+    // 7. RENDER DASHBOARD
+    // =========================================================================
+    function renderDashboard() {
+      const fin = computeFinancialSummary();
+      const totalDebit = appState.journals.reduce((a, j) => a + j.lines.reduce((x, l) => x + l.debit, 0), 0);
+      const grossMargin = fin.penjualan > 0 ? ((fin.labaKotor / fin.penjualan) * 100).toFixed(1) : `0.0`;
+      const netMargin = fin.penjualan > 0 ? ((fin.labaBersih / fin.penjualan) * 100).toFixed(1) : `0.0`;
+
+      const kpisEl = document.getElementById(`dash-kpis`);
+      if (kpisEl) {
+        kpisEl.innerHTML = `
+          <div class="kpi-tile is-primary-tile">
+            <span class="label-mono">Total Saldo Kas &amp; Bank</span>
+            <div class="kpi-value">${formatRp(fin.kasBankTotal)}</div>
+            <span class="kpi-helper">3 rekening aktif (Tunai, BCA, Mandiri)</span>
+          </div>
+          <div class="kpi-tile">
+            <span class="label-mono">Total Penjualan</span>
+            <div class="kpi-value">${formatRp(fin.penjualan)}</div>
+            <span class="kpi-helper">${appState.salesInvoices.length} faktur · Margin Kotor ${grossMargin}%</span>
+          </div>
+          <div class="kpi-tile">
+            <span class="label-mono">Total Pembelian</span>
+            <div class="kpi-value">${formatRp(fin.totalPembelian)}</div>
+            <span class="kpi-helper">${appState.purchaseInvoices.length} faktur masuk periode berjalan</span>
+          </div>
+          <div class="kpi-tile">
+            <span class="label-mono">Laba / Rugi Bersih Real-Time</span>
+            <div class="kpi-value ${fin.labaBersih >= 0 ? `text-positive` : `text-error`}">${formatRp(fin.labaBersih)}</div>
+            <span class="kpi-helper">Margin Bersih ${netMargin}% (termasuk beban ops)</span>
+          </div>
+        `;
+      }
+
+      const secEl = document.getElementById(`dash-secondary-kpis`);
+      if (secEl) {
+        const lowCount = appState.items.filter(i => i.qty <= i.minStock).length;
+        secEl.innerHTML = `
+          <div class="kpi-tile">
+            <span class="label-mono">Piutang Usaha Tertagih</span>
+            <div class="kpi-value" style="font-size:1.35rem;">${formatRp(fin.piutangUsaha)}</div>
+            <span class="kpi-helper">Dari pelanggan tempo</span>
+          </div>
+          <div class="kpi-tile">
+            <span class="label-mono">Utang Usaha Berjalan</span>
+            <div class="kpi-value" style="font-size:1.35rem;">${formatRp(fin.utangUsaha)}</div>
+            <span class="kpi-helper">Kewajiban kepada pemasok</span>
+          </div>
+          <div class="kpi-tile">
+            <span class="label-mono">Valuasi Persediaan Gudang</span>
+            <div class="kpi-value" style="font-size:1.35rem;">${formatRp(fin.persediaan)}</div>
+            <span class="kpi-helper">${appState.items.length} SKU aktif · ${lowCount} stok menipis</span>
+          </div>
+        `;
+      }
+
+      // Bank breakdown
+      const bankEl = document.getElementById(`dash-bank-breakdown`);
+      if (bankEl) {
+        bankEl.innerHTML = [`1101`, `1102`, `1103`].map(code => `
+          <div class="fin-row">
+            <span><span class="mono">${code}</span> ${escapeHtml(COA_MAP[code].name)}</span>
+            <span class="fin-amt">${formatRp(fin.bal[code])}</span>
+          </div>
+        `).join(``);
+      }
+
+      // Open Invoices
+      const openRows = [];
+      appState.salesInvoices.forEach(inv => {
+        const rem = inv.totalAmount - inv.paidAmount;
+        if (rem > 0) {
+          openRows.push({ id: inv.id, partner: inv.customerName, kind: `Piutang`, rem, mod: `sales` });
+        }
+      });
+      appState.purchaseInvoices.forEach(inv => {
+        const rem = inv.totalAmount - inv.paidAmount;
+        if (rem > 0) {
+          openRows.push({ id: inv.id, partner: inv.supplierName, kind: `Utang`, rem, mod: `purchasing` });
+        }
+      });
+
+      const openTbody = document.getElementById(`dash-open-invoices`);
+      if (openTbody) {
+        if (openRows.length === 0) {
+          openTbody.innerHTML = `<tr><td colspan="5" style="color:var(--on-surface-variant);">Seluruh faktur penjualan dan pembelian telah lunas.</td></tr>`;
+        } else {
+          openTbody.innerHTML = openRows.map(r => `
+            <tr>
+              <td class="mono">${escapeHtml(r.id)}</td>
+              <td>${escapeHtml(r.partner)}</td>
+              <td><span class="tag ${r.kind === `Piutang` ? `tag-warning` : `tag-error`}">${r.kind}</span></td>
+              <td class="num">${formatRp(r.rem)}</td>
+              <td><button type="button" class="btn btn-ghost btn-compact" onclick="openPaymentFromDashboard('${r.mod}', '${escapeHtml(r.id)}')">Proses</button></td>
+            </tr>
+          `).join(``);
+        }
+      }
+
+      // Recent Journals
+      const recTbody = document.getElementById(`dash-recent-journals`);
+      if (recTbody) {
+        const latest = [...appState.journals].slice(-5).reverse();
+        recTbody.innerHTML = latest.map(j => {
+          const amt = j.lines.reduce((s, l) => s + l.debit, 0);
+          return `
+            <tr>
+              <td class="mono">${formatShortDate(j.date)}</td>
+              <td class="mono">${escapeHtml(j.ref)}</td>
+              <td>${escapeHtml(j.description)}</td>
+              <td class="num">${formatRp(amt)}</td>
+            </tr>
+          `;
+        }).join(``);
+      }
+
+      renderDashboardCharts(fin);
+      void totalDebit;
+    }
+
+    function openPaymentFromDashboard(mod, invId) {
+      switchModule(mod);
+      if (mod === `sales`) {
+        switchSubTab(`sales`, `sales-list`);
+        openSalesPayDrawer(invId);
+      } else {
+        switchSubTab(`purchasing`, `purch-list`);
+        openPurchPayDrawer(invId);
+      }
+    }
+
+    function renderDashboardCharts(fin) {
+      if (typeof Chart === `undefined`) return;
+      const c1 = getCssToken(`--data-1`);
+      const c2 = getCssToken(`--data-2`);
+      const c3 = getCssToken(`--data-3`);
+      const cCtx = getCssToken(`--data-context`);
+      const ink = getCssToken(`--on-surface`);
+      const muted = getCssToken(`--on-surface-variant`);
+      const grid = getCssToken(`--outline-variant`);
+
+      // Aggregate sales, purchases, expenses by date
+      const datesSet = new Set();
+      appState.salesInvoices.forEach(i => datesSet.add(i.date));
+      appState.purchaseInvoices.forEach(i => datesSet.add(i.date));
+      appState.cashTransactions.filter(t => t.type === `OUT` && t.contraAccountCode.startsWith(`6`)).forEach(t => datesSet.add(t.date));
+      const sortedDates = Array.from(datesSet).sort();
+
+      const salesByDate = sortedDates.map(d => appState.salesInvoices.filter(i => i.date === d).reduce((s, i) => s + i.totalAmount, 0) / 1000);
+      const purchByDate = sortedDates.map(d => appState.purchaseInvoices.filter(i => i.date === d).reduce((s, i) => s + i.totalAmount, 0) / 1000);
+      const expByDate = sortedDates.map(d => appState.cashTransactions.filter(t => t.date === d && t.type === `OUT` && t.contraAccountCode.startsWith(`6`)).reduce((s, t) => s + t.amount, 0) / 1000);
+
+      const cfCanvas = document.getElementById(`chart-cashflow`);
+      if (cfCanvas) {
+        if (chartInstances.cashflow) chartInstances.cashflow.destroy();
+        chartInstances.cashflow = new Chart(cfCanvas.getContext(`2d`), {
+          type: `bar`,
+          data: {
+            labels: sortedDates.map(d => formatShortDate(d).slice(0, 6)),
+            datasets: [
+              { label: `Penjualan (Rb Rp)`, data: salesByDate, backgroundColor: c1, borderRadius: 0 },
+              { label: `Pembelian (Rb Rp)`, data: purchByDate, backgroundColor: c2, borderRadius: 0 },
+              { label: `Beban Ops (Rb Rp)`, data: expByDate, backgroundColor: cCtx, borderRadius: 0 }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: `top`, align: `start`, labels: { boxWidth: 12, color: ink, font: { family: `'IBM Plex Mono', monospace`, size: 11 } } }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: muted, font: { family: `'IBM Plex Mono', monospace`, size: 11 } } },
+              y: { grid: { color: grid }, ticks: { color: muted, font: { family: `'IBM Plex Mono', monospace`, size: 11 } } }
+            }
+          }
+        });
+      }
+
+      const accCanvas = document.getElementById(`chart-accounts`);
+      if (accCanvas) {
+        if (chartInstances.accounts) chartInstances.accounts.destroy();
+        chartInstances.accounts = new Chart(accCanvas.getContext(`2d`), {
+          type: `bar`,
+          data: {
+            labels: [`Kas Tunai`, `Bank BCA`, `Bank Mandiri`],
+            datasets: [{
+              label: `Saldo (Rp)`,
+              data: [fin.bal[`1101`], fin.bal[`1102`], fin.bal[`1103`]],
+              backgroundColor: [c3, c1, c2],
+              borderRadius: 0
+            }]
+          },
+          options: {
+            indexAxis: `y`,
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: {
+                grid: { color: grid },
+                ticks: {
+                  color: muted,
+                  font: { family: `'IBM Plex Mono', monospace`, size: 11 },
+                  callback: v => `${Math.round(v / 1000000)} Jt`
+                }
+              },
+              y: { grid: { display: false }, ticks: { color: ink, font: { family: `'IBM Plex Mono', monospace`, size: 11 } } }
+            }
+          }
+        });
+      }
+    }
+
+    // =========================================================================
+    // 8. MODUL PENJUALAN (SALES)
+    // =========================================================================
+    function renderSalesModule() {
+      // Customer select dropdown
+      const custSel = document.getElementById(`sale-customer`);
+      if (custSel) {
+        const currentVal = custSel.value;
+        custSel.innerHTML = appState.customers.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.name)} (${escapeHtml(c.city)})</option>`).join(``);
+        if (currentVal) custSel.value = currentVal;
+      }
+
+      // Ensure at least 1 line row in new sale form
+      const linesCont = document.getElementById(`sale-lines-container`);
+      if (linesCont && linesCont.children.length === 0) {
+        addSaleLineRow();
+      } else {
+        refreshSaleLineSelects();
+      }
+
+      // Filter & render sales invoices
+      const search = (document.getElementById(`sales-filter-search`)?.value || ``).toLowerCase().trim();
+      const statusFilter = document.getElementById(`sales-filter-status`)?.value || `ALL`;
+
+      const tbody = document.getElementById(`sales-invoices-tbody`);
+      if (tbody) {
+        const rows = [...appState.salesInvoices].reverse().filter(inv => {
+          const rem = inv.totalAmount - inv.paidAmount;
+          const st = rem === 0 ? `PAID` : (inv.paidAmount > 0 ? `PARTIAL` : `UNPAID`);
+          if (statusFilter !== `ALL` && st !== statusFilter) return false;
+          if (search && !inv.id.toLowerCase().includes(search) && !inv.customerName.toLowerCase().includes(search)) return false;
+          return true;
+        });
+
+        if (rows.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="9" style="color:var(--on-surface-variant);">Tidak ada faktur penjualan yang cocok dengan filter.</td></tr>`;
+        } else {
+          tbody.innerHTML = rows.map(inv => {
+            const rem = inv.totalAmount - inv.paidAmount;
+            const statusTag = rem === 0
+              ? `<span class="tag tag-positive">Lunas</span>`
+              : (inv.paidAmount > 0 ? `<span class="tag tag-warning">Sebagian</span>` : `<span class="tag tag-error">Belum Lunas</span>`);
+            const itemsSummary = inv.lines.map(l => `${escapeHtml(l.itemName)} ×${l.qty}`).join(`, `);
+            const actionBtn = rem > 0
+              ? `<button type="button" class="btn btn-secondary btn-compact" onclick="openSalesPayDrawer('${escapeHtml(inv.id)}')">Terima Bayar</button>`
+              : `<span class="label-mono">Selesai</span>`;
+            return `
+              <tr>
+                <td class="mono">${escapeHtml(inv.id)}</td>
+                <td class="mono">${formatShortDate(inv.date)}</td>
+                <td>${escapeHtml(inv.customerName)}</td>
+                <td>${itemsSummary}</td>
+                <td class="num">${formatRp(inv.totalAmount)}</td>
+                <td class="num">${formatRp(inv.paidAmount)}</td>
+                <td class="num">${formatRp(rem)}</td>
+                <td>${statusTag}</td>
+                <td>${actionBtn}</td>
+              </tr>
+            `;
+          }).join(``);
+        }
+      }
+
+      // Render customer directory
+      const custTbody = document.getElementById(`customers-tbody`);
+      if (custTbody) {
+        custTbody.innerHTML = appState.customers.map(c => {
+          const custInvs = appState.salesInvoices.filter(i => i.customerId === c.id);
+          const totalSpend = custInvs.reduce((s, i) => s + i.totalAmount, 0);
+          const ar = custInvs.reduce((s, i) => s + (i.totalAmount - i.paidAmount), 0);
+          return `
+            <tr>
+              <td class="mono">${escapeHtml(c.id)}</td>
+              <td><strong>${escapeHtml(c.name)}</strong><br><span style="font-size:0.75rem; color:var(--on-surface-variant);">${escapeHtml(c.phone)}</span></td>
+              <td>${escapeHtml(c.segment)}</td>
+              <td>${escapeHtml(c.city)}</td>
+              <td class="num">${formatRp(totalSpend)}</td>
+              <td class="num ${ar > 0 ? `text-warning` : ``}">${formatRp(ar)}</td>
+            </tr>
+          `;
+        }).join(``);
+      }
+    }
+
+    function toggleSaleCashAccount() {
+      const mode = document.getElementById(`sale-payment-mode`)?.value;
+      const wrap = document.getElementById(`sale-cash-account-wrap`);
+      if (wrap) wrap.style.display = mode === `CASH` ? `flex` : `none`;
+    }
+
+    function addSaleLineRow() {
+      const cont = document.getElementById(`sale-lines-container`);
+      if (!cont) return;
+      const row = document.createElement(`div`);
+      row.className = `line-item-row`;
+      const opts = appState.items.map(i => `<option value="${escapeHtml(i.id)}">${escapeHtml(i.name)} (Stok: ${i.qty} ${escapeHtml(i.unit)})</option>`).join(``);
+      const firstItem = appState.items[0];
+      row.innerHTML = `
+        <div class="field">
+          <label>Barang / SKU</label>
+          <select class="sale-line-item" onchange="onSaleItemChange(this)">${opts}</select>
+        </div>
+        <div class="field">
+          <label>Qty</label>
+          <input type="number" class="sale-line-qty" min="1" value="1" oninput="recalcSalePreview()">
+        </div>
+        <div class="field">
+          <label>Harga Jual (Rp)</label>
+          <input type="number" class="sale-line-price" min="100" step="100" value="${firstItem ? firstItem.sellPrice : 0}" oninput="recalcSalePreview()">
+        </div>
+        <div class="field">
+          <label>Subtotal</label>
+          <input type="text" class="sale-line-sub" value="${formatRp(firstItem ? firstItem.sellPrice : 0)}" readonly>
+        </div>
+        <button type="button" class="btn btn-ghost btn-compact" onclick="removeLineRow(this, 'sale')" aria-label="Hapus baris">Hapus</button>
+      `;
+      cont.appendChild(row);
+      recalcSalePreview();
+    }
+
+    function refreshSaleLineSelects() {
+      document.querySelectorAll(`.sale-line-item`).forEach(sel => {
+        const val = sel.value;
+        sel.innerHTML = appState.items.map(i => `<option value="${escapeHtml(i.id)}">${escapeHtml(i.name)} (Stok: ${i.qty} ${escapeHtml(i.unit)})</option>`).join(``);
+        if (val && appState.items.some(i => i.id === val)) sel.value = val;
+      });
+      recalcSalePreview();
+    }
+
+    function onSaleItemChange(sel) {
+      const row = sel.closest(`.line-item-row`);
+      if (!row) return;
+      const item = appState.items.find(i => i.id === sel.value);
+      const priceInput = row.querySelector(`.sale-line-price`);
+      if (item && priceInput) priceInput.value = item.sellPrice;
+      recalcSalePreview();
+    }
+
+    function removeLineRow(btn, kind) {
+      const row = btn.closest(`.line-item-row`);
+      const cont = row?.parentElement;
+      if (!cont || cont.children.length <= 1) {
+        showToast(`Faktur harus memiliki minimal 1 baris barang.`, `warning`);
+        return;
+      }
+      row.remove();
+      if (kind === `sale`) recalcSalePreview();
+      else recalcPurchPreview();
+    }
+
+    function recalcSalePreview() {
+      let grand = 0;
+      let cogsEst = 0;
+      document.querySelectorAll(`#sale-lines-container .line-item-row`).forEach(row => {
+        const itemId = row.querySelector(`.sale-line-item`)?.value;
+        const qty = Number(row.querySelector(`.sale-line-qty`)?.value) || 0;
+        const price = Number(row.querySelector(`.sale-line-price`)?.value) || 0;
+        const sub = Math.round(qty * price);
+        const subEl = row.querySelector(`.sale-line-sub`);
+        if (subEl) subEl.value = formatRp(sub);
+        grand += sub;
+
+        const item = appState.items.find(i => i.id === itemId);
+        if (item && item.qty > 0) {
+          cogsEst += Math.round((item.stockValue / item.qty) * qty);
+        }
+      });
+      const totEl = document.getElementById(`sale-grand-total`);
+      const cogsEl = document.getElementById(`sale-cogs-preview`);
+      if (totEl) totEl.textContent = formatRp(grand);
+      if (cogsEl) cogsEl.textContent = `Estimasi HPP: ${formatRp(cogsEst)}`;
+    }
+
+    async function submitNewSale(e) {
+      e.preventDefault();
+      try {
+        const customerId = document.getElementById(`sale-customer`)?.value;
+        const date = document.getElementById(`sale-date`)?.value || TODAY_ISO;
+        const paymentMode = document.getElementById(`sale-payment-mode`)?.value || `CREDIT`;
+        const cashAccount = document.getElementById(`sale-cash-account`)?.value || `1102`;
+
+        const lineInputs = [];
+        document.querySelectorAll(`#sale-lines-container .line-item-row`).forEach(row => {
+          lineInputs.push({
+            itemId: row.querySelector(`.sale-line-item`)?.value,
+            qty: Number(row.querySelector(`.sale-line-qty`)?.value) || 0,
+            unitPrice: Number(row.querySelector(`.sale-line-price`)?.value) || 0
+          });
+        });
+
+        const invId = executeSale(appState, { customerId, date, paymentMode, cashAccount, lineInputs });
+        await persistState();
+        document.getElementById(`sale-lines-container`).innerHTML = ``;
+        addSaleLineRow();
+        switchSubTab(`sales`, `sales-list`);
+        renderAll();
+        showToast(`Faktur ${invId} berhasil diterbitkan. Stok & Buku Besar telah diperbarui otomatis.`, `positive`);
+      } catch (err) {
+        showToast(err.message, `error`);
+      }
+    }
+
+    function openSalesPayDrawer(invId) {
+      const inv = appState.salesInvoices.find(i => i.id === invId);
+      if (!inv) return;
+      const rem = inv.totalAmount - inv.paidAmount;
+      const drawer = document.getElementById(`sales-payment-drawer`);
+      const meta = document.getElementById(`sales-pay-meta`);
+      const idIn = document.getElementById(`sales-pay-inv-id`);
+      const amtIn = document.getElementById(`sales-pay-amount`);
+      const dateIn = document.getElementById(`sales-pay-date`);
+      if (!drawer || !idIn || !amtIn) return;
+
+      idIn.value = inv.id;
+      amtIn.value = rem;
+      amtIn.max = rem;
+      if (dateIn) dateIn.value = TODAY_ISO;
+      if (meta) meta.textContent = `${inv.id} · ${inv.customerName} · Sisa Piutang: ${formatRp(rem)}`;
+      drawer.classList.add(`is-open`);
+    }
+
+    function closeSalesPayDrawer() {
+      const drawer = document.getElementById(`sales-payment-drawer`);
+      if (drawer) drawer.classList.remove(`is-open`);
+    }
+
+    async function submitSalesPayment(e) {
+      e.preventDefault();
+      try {
+        const invoiceId = document.getElementById(`sales-pay-inv-id`)?.value;
+        const date = document.getElementById(`sales-pay-date`)?.value || TODAY_ISO;
+        const accountCode = document.getElementById(`sales-pay-account`)?.value || `1102`;
+        const amount = Number(document.getElementById(`sales-pay-amount`)?.value) || 0;
+
+        const ref = executeSalesPayment(appState, { invoiceId, date, accountCode, amount });
+        await persistState();
+        closeSalesPayDrawer();
+        renderAll();
+        showToast(`Penerimaan pembayaran ${ref} (${formatRp(amount)}) berhasil dicatat ke ${COA_MAP[accountCode].name}.`, `positive`);
+      } catch (err) {
+        showToast(err.message, `error`);
+      }
+    }
+
+    async function submitNewCustomer(e) {
+      e.preventDefault();
+      const name = (document.getElementById(`cust-name`)?.value || ``).trim();
+      const segment = document.getElementById(`cust-segment`)?.value || `Retail / Toko`;
+      const city = (document.getElementById(`cust-city`)?.value || ``).trim();
+      const phone = (document.getElementById(`cust-phone`)?.value || ``).trim();
+      if (!name || !city) {
+        showToast(`Nama pelanggan dan kota wajib diisi.`, `error`);
+        return;
+      }
+      const id = nextCode(`CUST-`, appState.customers, `id`);
+      appState.customers.push({ id, name, segment, city, phone });
+      await persistState();
+      e.target.reset();
+      renderSalesModule();
+      showToast(`Pelanggan ${name} (${id}) berhasil ditambahkan.`, `positive`);
+    }
+
+    // =========================================================================
+    // 9. MODUL PEMBELIAN (PURCHASING)
+    // =========================================================================
+    function renderPurchasingModule() {
+      const supSel = document.getElementById(`purch-supplier`);
+      if (supSel) {
+        const currentVal = supSel.value;
+        supSel.innerHTML = appState.suppliers.map(s => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)} (${escapeHtml(s.city)})</option>`).join(``);
+        if (currentVal) supSel.value = currentVal;
+      }
+
+      const linesCont = document.getElementById(`purch-lines-container`);
+      if (linesCont && linesCont.children.length === 0) {
+        addPurchLineRow();
+      } else {
+        refreshPurchLineSelects();
+      }
+
+      const search = (document.getElementById(`purch-filter-search`)?.value || ``).toLowerCase().trim();
+      const statusFilter = document.getElementById(`purch-filter-status`)?.value || `ALL`;
+
+      const tbody = document.getElementById(`purch-invoices-tbody`);
+      if (tbody) {
+        const rows = [...appState.purchaseInvoices].reverse().filter(inv => {
+          const rem = inv.totalAmount - inv.paidAmount;
+          const st = rem === 0 ? `PAID` : (inv.paidAmount > 0 ? `PARTIAL` : `UNPAID`);
+          if (statusFilter !== `ALL` && st !== statusFilter) return false;
+          if (search && !inv.id.toLowerCase().includes(search) && !inv.supplierName.toLowerCase().includes(search)) return false;
+          return true;
+        });
+
+        if (rows.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="9" style="color:var(--on-surface-variant);">Tidak ada faktur pembelian yang cocok dengan filter.</td></tr>`;
+        } else {
+          tbody.innerHTML = rows.map(inv => {
+            const rem = inv.totalAmount - inv.paidAmount;
+            const statusTag = rem === 0
+              ? `<span class="tag tag-positive">Lunas</span>`
+              : (inv.paidAmount > 0 ? `<span class="tag tag-warning">Sebagian</span>` : `<span class="tag tag-error">Belum Lunas</span>`);
+            const itemsSummary = inv.lines.map(l => `${escapeHtml(l.itemName)} ×${l.qty}`).join(`, `);
+            const actionBtn = rem > 0
+              ? `<button type="button" class="btn btn-secondary btn-compact" onclick="openPurchPayDrawer('${escapeHtml(inv.id)}')">Bayar Utang</button>`
+              : `<span class="label-mono">Lunas</span>`;
+            return `
+              <tr>
+                <td class="mono">${escapeHtml(inv.id)}</td>
+                <td class="mono">${formatShortDate(inv.date)}</td>
+                <td>${escapeHtml(inv.supplierName)}</td>
+                <td>${itemsSummary}</td>
+                <td class="num">${formatRp(inv.totalAmount)}</td>
+                <td class="num">${formatRp(inv.paidAmount)}</td>
+                <td class="num">${formatRp(rem)}</td>
+                <td>${statusTag}</td>
+                <td>${actionBtn}</td>
+              </tr>
+            `;
+          }).join(``);
+        }
+      }
+
+      const supTbody = document.getElementById(`suppliers-tbody`);
+      if (supTbody) {
+        supTbody.innerHTML = appState.suppliers.map(s => {
+          const supInvs = appState.purchaseInvoices.filter(i => i.supplierId === s.id);
+          const totalBuy = supInvs.reduce((acc, i) => acc + i.totalAmount, 0);
+          const ap = supInvs.reduce((acc, i) => acc + (i.totalAmount - i.paidAmount), 0);
+          return `
+            <tr>
+              <td class="mono">${escapeHtml(s.id)}</td>
+              <td><strong>${escapeHtml(s.name)}</strong><br><span style="font-size:0.75rem; color:var(--on-surface-variant);">${escapeHtml(s.phone)}</span></td>
+              <td>${escapeHtml(s.category)}</td>
+              <td>${escapeHtml(s.city)}</td>
+              <td class="num">${formatRp(totalBuy)}</td>
+              <td class="num ${ap > 0 ? `text-error` : ``}">${formatRp(ap)}</td>
+            </tr>
+          `;
+        }).join(``);
+      }
+    }
+
+    function togglePurchCashAccount() {
+      const mode = document.getElementById(`purch-payment-mode`)?.value;
+      const wrap = document.getElementById(`purch-cash-account-wrap`);
+      if (wrap) wrap.style.display = mode === `CASH` ? `flex` : `none`;
+    }
+
+    function addPurchLineRow() {
+      const cont = document.getElementById(`purch-lines-container`);
+      if (!cont) return;
+      const row = document.createElement(`div`);
+      row.className = `line-item-row`;
+      const opts = appState.items.map(i => `<option value="${escapeHtml(i.id)}">${escapeHtml(i.name)} (${escapeHtml(i.unit)})</option>`).join(``);
+      const firstItem = appState.items[0];
+      const defCost = firstItem && firstItem.qty > 0 ? Math.round(firstItem.stockValue / firstItem.qty) : 50000;
+      row.innerHTML = `
+        <div class="field">
+          <label>Barang / SKU</label>
+          <select class="purch-line-item" onchange="onPurchItemChange(this)">${opts}</select>
+        </div>
+        <div class="field">
+          <label>Qty</label>
+          <input type="number" class="purch-line-qty" min="1" value="10" oninput="recalcPurchPreview()">
+        </div>
+        <div class="field">
+          <label>Harga Beli Satuan (Rp)</label>
+          <input type="number" class="purch-line-cost" min="100" step="100" value="${defCost}" oninput="recalcPurchPreview()">
+        </div>
+        <div class="field">
+          <label>Subtotal</label>
+          <input type="text" class="purch-line-sub" value="${formatRp(defCost * 10)}" readonly>
+        </div>
+        <button type="button" class="btn btn-ghost btn-compact" onclick="removeLineRow(this, 'purch')" aria-label="Hapus baris">Hapus</button>
+      `;
+      cont.appendChild(row);
+      recalcPurchPreview();
+    }
+
+    function refreshPurchLineSelects() {
+      document.querySelectorAll(`.purch-line-item`).forEach(sel => {
+        const val = sel.value;
+        sel.innerHTML = appState.items.map(i => `<option value="${escapeHtml(i.id)}">${escapeHtml(i.name)} (${escapeHtml(i.unit)})</option>`).join(``);
+        if (val && appState.items.some(i => i.id === val)) sel.value = val;
+      });
+      recalcPurchPreview();
+    }
+
+    function onPurchItemChange(sel) {
+      const row = sel.closest(`.line-item-row`);
+      if (!row) return;
+      const item = appState.items.find(i => i.id === sel.value);
+      const costInput = row.querySelector(`.purch-line-cost`);
+      if (item && costInput) {
+        costInput.value = item.qty > 0 ? Math.round(item.stockValue / item.qty) : Math.round(item.sellPrice * 0.65);
+      }
+      recalcPurchPreview();
+    }
+
+    function recalcPurchPreview() {
+      let grand = 0;
+      document.querySelectorAll(`#purch-lines-container .line-item-row`).forEach(row => {
+        const qty = Number(row.querySelector(`.purch-line-qty`)?.value) || 0;
+        const cost = Number(row.querySelector(`.purch-line-cost`)?.value) || 0;
+        const sub = Math.round(qty * cost);
+        const subEl = row.querySelector(`.purch-line-sub`);
+        if (subEl) subEl.value = formatRp(sub);
+        grand += sub;
+      });
+      const totEl = document.getElementById(`purch-grand-total`);
+      if (totEl) totEl.textContent = formatRp(grand);
+    }
+
+    async function submitNewPurchase(e) {
+      e.preventDefault();
+      try {
+        const supplierId = document.getElementById(`purch-supplier`)?.value;
+        const date = document.getElementById(`purch-date`)?.value || TODAY_ISO;
+        const paymentMode = document.getElementById(`purch-payment-mode`)?.value || `CREDIT`;
+        const cashAccount = document.getElementById(`purch-cash-account`)?.value || `1102`;
+
+        const lineInputs = [];
+        document.querySelectorAll(`#purch-lines-container .line-item-row`).forEach(row => {
+          lineInputs.push({
+            itemId: row.querySelector(`.purch-line-item`)?.value,
+            qty: Number(row.querySelector(`.purch-line-qty`)?.value) || 0,
+            unitCost: Number(row.querySelector(`.purch-line-cost`)?.value) || 0
+          });
+        });
+
+        const invId = executePurchase(appState, { supplierId, date, paymentMode, cashAccount, lineInputs });
+        await persistState();
+        document.getElementById(`purch-lines-container`).innerHTML = ``;
+        addPurchLineRow();
+        switchSubTab(`purchasing`, `purch-list`);
+        renderAll();
+        showToast(`Pembelian ${invId} berhasil dicatat. Stok gudang & Utang/Kas telah diperbarui.`, `positive`);
+      } catch (err) {
+        showToast(err.message, `error`);
+      }
+    }
+
+    function openPurchPayDrawer(invId) {
+      const inv = appState.purchaseInvoices.find(i => i.id === invId);
+      if (!inv) return;
+      const rem = inv.totalAmount - inv.paidAmount;
+      const drawer = document.getElementById(`purch-payment-drawer`);
+      const meta = document.getElementById(`purch-pay-meta`);
+      const idIn = document.getElementById(`purch-pay-inv-id`);
+      const amtIn = document.getElementById(`purch-pay-amount`);
+      const dateIn = document.getElementById(`purch-pay-date`);
+      if (!drawer || !idIn || !amtIn) return;
+
+      idIn.value = inv.id;
+      amtIn.value = rem;
+      amtIn.max = rem;
+      if (dateIn) dateIn.value = TODAY_ISO;
+      if (meta) meta.textContent = `${inv.id} · ${inv.supplierName} · Sisa Utang: ${formatRp(rem)}`;
+      drawer.classList.add(`is-open`);
+    }
+
+    function closePurchPayDrawer() {
+      const drawer = document.getElementById(`purch-payment-drawer`);
+      if (drawer) drawer.classList.remove(`is-open`);
+    }
+
+    async function submitPurchPayment(e) {
+      e.preventDefault();
+      try {
+        const invoiceId = document.getElementById(`purch-pay-inv-id`)?.value;
+        const date = document.getElementById(`purch-pay-date`)?.value || TODAY_ISO;
+        const accountCode = document.getElementById(`purch-pay-account`)?.value || `1102`;
+        const amount = Number(document.getElementById(`purch-pay-amount`)?.value) || 0;
+
+        const ref = executePurchasePayment(appState, { invoiceId, date, accountCode, amount });
+        await persistState();
+        closePurchPayDrawer();
+        renderAll();
+        showToast(`Pengeluaran kas ${ref} (${formatRp(amount)}) untuk melunasi utang berhasil dicatat.`, `positive`);
+      } catch (err) {
+        showToast(err.message, `error`);
+      }
+    }
+
+    async function submitNewSupplier(e) {
+      e.preventDefault();
+      const name = (document.getElementById(`sup-name`)?.value || ``).trim();
+      const category = document.getElementById(`sup-category`)?.value || `Bahan Baku F&B`;
+      const city = (document.getElementById(`sup-city`)?.value || ``).trim();
+      const phone = (document.getElementById(`sup-phone`)?.value || ``).trim();
+      if (!name || !city) {
+        showToast(`Nama pemasok dan kota wajib diisi.`, `error`);
+        return;
+      }
+      const id = nextCode(`SUP-`, appState.suppliers, `id`);
+      appState.suppliers.push({ id, name, category, city, phone });
+      await persistState();
+      e.target.reset();
+      renderPurchasingModule();
+      showToast(`Pemasok ${name} (${id}) berhasil ditambahkan.`, `positive`);
+    }
+
+    // =========================================================================
+    // 10. MODUL PERSEDIAAN (INVENTORY)
+    // =========================================================================
+    function renderInventoryModule() {
+      const totalSku = appState.items.length;
+      const totalUnits = appState.items.reduce((s, i) => s + i.qty, 0);
+      const totalVal = appState.items.reduce((s, i) => s + i.stockValue, 0);
+      const lowItems = appState.items.filter(i => i.qty <= i.minStock).length;
+
+      const kpiEl = document.getElementById(`inv-kpis`);
+      if (kpiEl) {
+        kpiEl.innerHTML = `
+          <div class="kpi-tile is-primary-tile">
+            <span class="label-mono">Total Nilai Persediaan</span>
+            <div class="kpi-value">${formatRp(totalVal)}</div>
+            <span class="kpi-helper">Sinkron 100% dengan akun 1301</span>
+          </div>
+          <div class="kpi-tile">
+            <span class="label-mono">Jumlah SKU Aktif</span>
+            <div class="kpi-value">${totalSku}</div>
+            <span class="kpi-helper">Master barang terdaftar</span>
+          </div>
+          <div class="kpi-tile">
+            <span class="label-mono">Total Unit Fisik</span>
+            <div class="kpi-value">${totalUnits.toLocaleString(`id-ID`)}</div>
+            <span class="kpi-helper">Gabungan seluruh satuan</span>
+          </div>
+          <div class="kpi-tile">
+            <span class="label-mono">Peringatan Stok Minimum</span>
+            <div class="kpi-value ${lowItems > 0 ? `text-warning` : `text-positive`}">${lowItems} SKU</div>
+            <span class="kpi-helper">${lowItems > 0 ? `Perlu pemesanan ulang` : `Semua stok aman`}</span>
+          </div>
+        `;
+      }
+
+      const search = (document.getElementById(`inv-filter-search`)?.value || ``).toLowerCase().trim();
+      const cat = document.getElementById(`inv-filter-cat`)?.value || `ALL`;
+
+      const tbody = document.getElementById(`inventory-tbody`);
+      if (tbody) {
+        const filtered = appState.items.filter(i => {
+          if (cat !== `ALL` && i.category !== cat) return false;
+          if (search && !i.id.toLowerCase().includes(search) && !i.name.toLowerCase().includes(search)) return false;
+          return true;
+        });
+
+        tbody.innerHTML = filtered.map(i => {
+          const avgBuy = i.qty > 0 ? Math.round(i.stockValue / i.qty) : 0;
+          const statusTag = i.qty === 0
+            ? `<span class="tag tag-error">Habis</span>`
+            : (i.qty <= i.minStock ? `<span class="tag tag-warning">Menipis (Min ${i.minStock})</span>` : `<span class="tag tag-positive">Tersedia</span>`);
+          return `
+            <tr>
+              <td class="mono">${escapeHtml(i.id)}</td>
+              <td><strong>${escapeHtml(i.name)}</strong></td>
+              <td>${escapeHtml(i.category)}</td>
+              <td>${escapeHtml(i.unit)}</td>
+              <td class="num">${i.qty.toLocaleString(`id-ID`)}</td>
+              <td class="num">${formatRp(avgBuy)}</td>
+              <td class="num">${formatRp(i.sellPrice)}</td>
+              <td class="num">${formatRp(i.stockValue)}</td>
+              <td>${statusTag}</td>
+            </tr>
+          `;
+        }).join(``);
+      }
+
+      // Populate adjust dropdown
+      const adjSel = document.getElementById(`adj-item`);
+      if (adjSel) {
+        const prev = adjSel.value;
+        adjSel.innerHTML = appState.items.map(i => `<option value="${escapeHtml(i.id)}">${escapeHtml(i.id)} — ${escapeHtml(i.name)} (Stok: ${i.qty} ${escapeHtml(i.unit)})</option>`).join(``);
+        if (prev && appState.items.some(i => i.id === prev)) adjSel.value = prev;
+      }
+
+      // Adjustment history
+      const adjTbody = document.getElementById(`adj-history-tbody`);
+      if (adjTbody) {
+        const rows = [...appState.adjustments].reverse();
+        if (rows.length === 0) {
+          adjTbody.innerHTML = `<tr><td colspan="7" style="color:var(--on-surface-variant);">Belum ada riwayat penyesuaian persediaan.</td></tr>`;
+        } else {
+          adjTbody.innerHTML = rows.map(a => `
+            <tr>
+              <td class="mono">${escapeHtml(a.id)}</td>
+              <td class="mono">${formatShortDate(a.date)}</td>
+              <td>${escapeHtml(a.itemName)}</td>
+              <td><span class="tag ${a.type === `OUT` ? `tag-error` : `tag-positive`}">${a.type === `OUT` ? `Kurang (-)` : `Tambah (+)`}</span></td>
+              <td class="num">${a.qty}</td>
+              <td class="num">${formatRp(a.valueImpact)}</td>
+              <td>${escapeHtml(a.note)}</td>
+            </tr>
+          `).join(``);
+        }
+      }
+    }
+
+    async function submitNewItem(e) {
+      e.preventDefault();
+      try {
+        const name = (document.getElementById(`item-name`)?.value || ``).trim();
+        const category = document.getElementById(`item-cat`)?.value || `Bahan Baku`;
+        const unit = (document.getElementById(`item-unit`)?.value || `Pcs`).trim();
+        const buyPrice = Math.round(Number(document.getElementById(`item-buy`)?.value) || 0);
+        const sellPrice = Math.round(Number(document.getElementById(`item-sell`)?.value) || 0);
+        const qty = Math.round(Number(document.getElementById(`item-qty`)?.value) || 0);
+        const minStock = Math.round(Number(document.getElementById(`item-min`)?.value) || 10);
+
+        if (!name || buyPrice <= 0 || sellPrice <= 0) {
+          throw new Error(`Nama barang, harga beli, dan harga jual harus valid.`);
+        }
+
+        const id = nextCode(`BRG-`, appState.items, `id`);
+        const initVal = qty * buyPrice;
+        appState.items.push({ id, name, category, unit, qty, stockValue: initVal, sellPrice, minStock });
+
+        if (initVal > 0) {
+          postJournal(appState, {
+            date: TODAY_ISO,
+            source: `PERSEDIAAN`,
+            ref: id,
+            description: `Stok Awal Master Barang Baru: ${name} (${qty} ${unit})`,
+            lines: [
+              { accountCode: `1301`, debit: initVal, credit: 0 },
+              { accountCode: `3101`, debit: 0, credit: initVal }
+            ]
+          });
+        }
+
+        await persistState();
+        e.target.reset();
+        switchSubTab(`inventory`, `inv-master`);
+        renderAll();
+        showToast(`Barang ${name} (${id}) berhasil ditambahkan ke Master Persediaan.`, `positive`);
+      } catch (err) {
+        showToast(err.message, `error`);
+      }
+    }
+
+    async function submitInventoryAdjustment(e) {
+      e.preventDefault();
+      try {
+        const itemId = document.getElementById(`adj-item`)?.value;
+        const date = document.getElementById(`adj-date`)?.value || TODAY_ISO;
+        const type = document.getElementById(`adj-type`)?.value || `OUT`;
+        const qty = Number(document.getElementById(`adj-qty`)?.value) || 0;
+        const note = (document.getElementById(`adj-note`)?.value || ``).trim();
+
+        const adjId = executeInventoryAdjustment(appState, { itemId, date, type, qty, note });
+        await persistState();
+        document.getElementById(`adj-note`).value = ``;
+        renderAll();
+        showToast(`Penyesuaian stok ${adjId} berhasil diproses beserta jurnal otomatis.`, `positive`);
+      } catch (err) {
+        showToast(err.message, `error`);
+      }
+    }
+
+    // =========================================================================
+    // 11. MODUL KAS & BANK
+    // =========================================================================
+    function renderCashBankModule() {
+      const fin = computeFinancialSummary();
+      const cardsEl = document.getElementById(`cb-account-cards`);
+      if (cardsEl) {
+        cardsEl.innerHTML = [`1101`, `1102`, `1103`].map((code, idx) => `
+          <div class="kpi-tile ${idx === 1 ? `is-primary-tile` : ``}">
+            <span class="label-mono">${code} · Rekening Aktif</span>
+            <div class="subhead-title">${escapeHtml(COA_MAP[code].name)}</div>
+            <div class="kpi-value" style="margin-top:var(--space-xs);">${formatRp(fin.bal[code])}</div>
+          </div>
+        `).join(``);
+      }
+
+      const contraSel = document.getElementById(`cb-contra`);
+      if (contraSel && contraSel.options.length === 0) {
+        updateCashBankContraOptions();
+      }
+
+      const accFilter = document.getElementById(`cb-filter-acc`)?.value || `ALL`;
+      const tbody = document.getElementById(`cb-ledger-tbody`);
+      if (tbody) {
+        const rows = [...appState.cashTransactions].reverse().filter(tx => {
+          if (accFilter !== `ALL` && tx.accountCode !== accFilter) return false;
+          return true;
+        });
+
+        if (rows.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="color:var(--on-surface-variant);">Belum ada transaksi untuk rekening ini.</td></tr>`;
+        } else {
+          tbody.innerHTML = rows.map(tx => `
+            <tr>
+              <td class="mono">${formatShortDate(tx.date)}</td>
+              <td class="mono">${escapeHtml(tx.ref)}</td>
+              <td><span class="mono">${escapeHtml(tx.accountCode)}</span> ${escapeHtml(COA_MAP[tx.accountCode]?.name || ``)}</td>
+              <td>${escapeHtml(tx.description)}</td>
+              <td class="num ${tx.type === `IN` ? `text-positive` : ``}">${tx.type === `IN` ? formatRp(tx.amount) : `-`}</td>
+              <td class="num ${tx.type === `OUT` ? `text-error` : ``}">${tx.type === `OUT` ? formatRp(tx.amount) : `-`}</td>
+            </tr>
+          `).join(``);
+        }
+      }
+    }
+
+    function updateCashBankContraOptions() {
+      const type = document.getElementById(`cb-type`)?.value || `OUT`;
+      const accLabel = document.getElementById(`cb-account-label`);
+      const contraLabel = document.getElementById(`cb-contra-label`);
+      const contraSel = document.getElementById(`cb-contra`);
+      if (!contraSel) return;
+
+      if (type === `OUT`) {
+        if (accLabel) accLabel.textContent = `Dari Akun Kas/Bank`;
+        if (contraLabel) contraLabel.textContent = `Alokasi Akun Beban / Aset`;
+        contraSel.innerHTML = `
+          <option value="6101">6101 — Beban Operasional &amp; Gaji</option>
+          <option value="6102">6102 — Beban Utilitas &amp; Sewa</option>
+          <option value="1501">1501 — Pembelian Peralatan &amp; Aset Tetap</option>
+          <option value="3101">3101 — Prive / Penarikan Modal</option>
+        `;
+      } else if (type === `IN`) {
+        if (accLabel) accLabel.textContent = `Masuk ke Akun Kas/Bank`;
+        if (contraLabel) contraLabel.textContent = `Sumber Penerimaan`;
+        contraSel.innerHTML = `
+          <option value="4201">4201 — Pendapatan Jasa &amp; Lainnya</option>
+          <option value="3101">3101 — Setoran Modal Tambahan</option>
+        `;
+      } else {
+        if (accLabel) accLabel.textContent = `Rekening Sumber (Asal)`;
+        if (contraLabel) contraLabel.textContent = `Rekening Tujuan`;
+        contraSel.innerHTML = `
+          <option value="1102">1102 — Bank BCA Operasional</option>
+          <option value="1103">1103 — Bank Mandiri Bisnis</option>
+          <option value="1101">1101 — Kas Tunai</option>
+        `;
+      }
+    }
+
+    async function submitCashBankTx(e) {
+      e.preventDefault();
+      try {
+        const type = document.getElementById(`cb-type`)?.value || `OUT`;
+        const date = document.getElementById(`cb-date`)?.value || TODAY_ISO;
+        const accountCode = document.getElementById(`cb-account`)?.value || `1102`;
+        const contraAccountCode = document.getElementById(`cb-contra`)?.value;
+        const amount = Number(document.getElementById(`cb-amount`)?.value) || 0;
+        const description = (document.getElementById(`cb-desc`)?.value || ``).trim();
+
+        const txId = executeCashBankTx(appState, { date, type, accountCode, contraAccountCode, amount, description });
+        await persistState();
+        document.getElementById(`cb-amount`).value = ``;
+        document.getElementById(`cb-desc`).value = ``;
+        renderAll();
+        showToast(`Transaksi Kas & Bank ${txId} (${formatRp(amount)}) berhasil diposting ke Buku Besar.`, `positive`);
+      } catch (err) {
+        showToast(err.message, `error`);
+      }
+    }
+
+    // =========================================================================
+    // 12. BUKU BESAR & LAPORAN KEUANGAN
+    // =========================================================================
+    function renderLedgerModule() {
+      const fin = computeFinancialSummary();
+
+      // Populate COA filter once
+      const accSel = document.getElementById(`gl-filter-account`);
+      if (accSel && accSel.options.length === 0) {
+        accSel.innerHTML = `<option value="ALL">Semua Akun COA</option>` +
+          COA.map(a => `<option value="${a.code}">${a.code} — ${escapeHtml(a.name)}</option>`).join(``);
+      }
+
+      const filterAcc = accSel?.value || `ALL`;
+      const filterSrc = document.getElementById(`gl-filter-source`)?.value || `ALL`;
+
+      let sumDebit = 0;
+      let sumCredit = 0;
+      const flatRows = [];
+
+      [...appState.journals].reverse().forEach(j => {
+        if (filterSrc !== `ALL` && j.source !== filterSrc) return;
+        j.lines.forEach(line => {
+          if (filterAcc !== `ALL` && line.accountCode !== filterAcc) return;
+          sumDebit += line.debit;
+          sumCredit += line.credit;
+          flatRows.push({
+            id: j.id,
+            date: j.date,
+            source: j.source,
+            ref: j.ref,
+            accountCode: line.accountCode,
+            accountName: COA_MAP[line.accountCode]?.name || ``,
+            description: j.description,
+            debit: line.debit,
+            credit: line.credit
+          });
+        });
+      });
+
+      const dEl = document.getElementById(`gl-total-debit`);
+      const cEl = document.getElementById(`gl-total-credit`);
+      const stEl = document.getElementById(`gl-balance-status`);
+      if (dEl) dEl.textContent = formatRp(sumDebit);
+      if (cEl) cEl.textContent = formatRp(sumCredit);
+      if (stEl) {
+        if (filterAcc === `ALL`) {
+          stEl.innerHTML = sumDebit === sumCredit
+            ? `<span class="tag tag-positive">SEIMBANG (Selisih Rp 0)</span>`
+            : `<span class="tag tag-error">TIDAK SEIMBANG</span>`;
+        } else {
+          stEl.innerHTML = `<span class="tag tag-neutral">Filter Akun ${escapeHtml(filterAcc)}</span>`;
+        }
+      }
+
+      const glTbody = document.getElementById(`gl-tbody`);
+      if (glTbody) {
+        if (flatRows.length === 0) {
+          glTbody.innerHTML = `<tr><td colspan="7" style="color:var(--on-surface-variant);">Tidak ada baris jurnal yang cocok dengan filter.</td></tr>`;
+        } else {
+          glTbody.innerHTML = flatRows.map(r => `
+            <tr>
+              <td class="mono">${escapeHtml(r.id)}</td>
+              <td class="mono">${formatShortDate(r.date)}</td>
+              <td><span class="tag tag-neutral">${escapeHtml(r.source)}</span> <span class="mono">${escapeHtml(r.ref)}</span></td>
+              <td><span class="mono">${escapeHtml(r.accountCode)}</span> ${escapeHtml(r.accountName)}</td>
+              <td>${escapeHtml(r.description)}</td>
+              <td class="num">${r.debit > 0 ? formatRp(r.debit) : `-`}</td>
+              <td class="num">${r.credit > 0 ? formatRp(r.credit) : `-`}</td>
+            </tr>
+          `).join(``);
+        }
+      }
+
+      // Render Laba Rugi (P&L)
+      const pnlEl = document.getElementById(`pnl-container`);
+      if (pnlEl) {
+        pnlEl.innerHTML = `
+          <div class="fin-group-title">Pendapatan Usaha</div>
+          <div class="fin-row"><span>4101 — Pendapatan Penjualan</span><span class="fin-amt">${formatRp(fin.penjualan)}</span></div>
+          <div class="fin-group-title">Harga Pokok Penjualan</div>
+          <div class="fin-row"><span>5101 — Harga Pokok Penjualan (HPP)</span><span class="fin-amt text-error">(${formatRp(fin.hpp)})</span></div>
+          <div class="fin-row is-subtotal"><span>Laba Kotor (Gross Profit)</span><span class="fin-amt">${formatRp(fin.labaKotor)}</span></div>
+
+          <div class="fin-group-title">Beban Operasional &amp; Penyesuaian</div>
+          <div class="fin-row"><span>6101 — Beban Operasional &amp; Gaji</span><span class="fin-amt">${formatRp(fin.bal[`6101`])}</span></div>
+          <div class="fin-row"><span>6102 — Beban Utilitas &amp; Sewa</span><span class="fin-amt">${formatRp(fin.bal[`6102`])}</span></div>
+          <div class="fin-row"><span>6103 — Beban Penyesuaian Persediaan</span><span class="fin-amt">${formatRp(fin.bal[`6103`])}</span></div>
+          <div class="fin-row is-subtotal"><span>Total Beban Operasional</span><span class="fin-amt">(${formatRp(fin.bebanOps)})</span></div>
+
+          <div class="fin-group-title">Pendapatan di Luar Usaha</div>
+          <div class="fin-row"><span>4201 — Pendapatan Jasa &amp; Lainnya</span><span class="fin-amt">${formatRp(fin.pendapatanLain)}</span></div>
+
+          <div class="fin-row is-total" style="margin-top:var(--space-md);">
+            <span>Laba / Rugi Bersih Periode Berjalan</span>
+            <span class="fin-amt">${formatRp(fin.labaBersih)}</span>
+          </div>
+        `;
+      }
+
+      // Render Neraca (Balance Sheet)
+      const bsBadge = document.getElementById(`bs-balance-badge`);
+      if (bsBadge) {
+        bsBadge.innerHTML = fin.selisihNeraca === 0
+          ? `<span class="tag tag-positive">NERACA SEIMBANG (Selisih: Rp 0)</span>`
+          : `<span class="tag tag-error">Selisih: ${formatRp(fin.selisihNeraca)}</span>`;
+      }
+
+      const bsAssets = document.getElementById(`bs-assets-container`);
+      if (bsAssets) {
+        bsAssets.innerHTML = `
+          <div class="fin-group-title">Aset Lancar</div>
+          <div class="fin-row"><span>1101 — Kas Tunai</span><span class="fin-amt">${formatRp(fin.bal[`1101`])}</span></div>
+          <div class="fin-row"><span>1102 — Bank BCA Operasional</span><span class="fin-amt">${formatRp(fin.bal[`1102`])}</span></div>
+          <div class="fin-row"><span>1103 — Bank Mandiri Bisnis</span><span class="fin-amt">${formatRp(fin.bal[`1103`])}</span></div>
+          <div class="fin-row"><span>1201 — Piutang Usaha</span><span class="fin-amt">${formatRp(fin.piutangUsaha)}</span></div>
+          <div class="fin-row"><span>1301 — Persediaan Barang Dagang</span><span class="fin-amt">${formatRp(fin.persediaan)}</span></div>
+          <div class="fin-row is-subtotal"><span>Total Aset Lancar</span><span class="fin-amt">${formatRp(fin.totalAsetLancar)}</span></div>
+
+          <div class="fin-group-title">Aset Tetap</div>
+          <div class="fin-row"><span>1501 — Peralatan &amp; Aset Tetap</span><span class="fin-amt">${formatRp(fin.asetTetap)}</span></div>
+
+          <div class="fin-row is-total" style="margin-top:var(--space-md);">
+            <span>TOTAL ASET</span>
+            <span class="fin-amt">${formatRp(fin.totalAset)}</span>
+          </div>
+        `;
+      }
+
+      const bsLiabEq = document.getElementById(`bs-liab-equity-container`);
+      if (bsLiabEq) {
+        bsLiabEq.innerHTML = `
+          <div class="fin-group-title">Liabilitas Lancar</div>
+          <div class="fin-row"><span>2101 — Utang Usaha</span><span class="fin-amt">${formatRp(fin.utangUsaha)}</span></div>
+          <div class="fin-row is-subtotal"><span>Total Liabilitas</span><span class="fin-amt">${formatRp(fin.utangUsaha)}</span></div>
+
+          <div class="fin-group-title">Ekuitas Pemilik</div>
+          <div class="fin-row"><span>3101 — Modal Disetor</span><span class="fin-amt">${formatRp(fin.modalDisetor)}</span></div>
+          <div class="fin-row"><span>3201 — Laba Ditahan</span><span class="fin-amt">${formatRp(fin.labaDitahan)}</span></div>
+          <div class="fin-row"><span>Laba Bersih Tahun Berjalan</span><span class="fin-amt ${fin.labaBersih >= 0 ? `text-positive` : `text-error`}">${formatRp(fin.labaBersih)}</span></div>
+          <div class="fin-row is-subtotal"><span>Total Ekuitas</span><span class="fin-amt">${formatRp(fin.totalEkuitas)}</span></div>
+
+          <div class="fin-row is-total" style="margin-top:var(--space-md);">
+            <span>TOTAL LIABILITAS &amp; EKUITAS</span>
+            <span class="fin-amt">${formatRp(fin.totalLiabEkuitas)}</span>
+          </div>
+        `;
+      }
+
+      if (activeSubTabs.ledger === `ledger-pnl`) {
+        renderPnLChart();
+      }
+    }
+
+    function renderPnLChart() {
+      if (typeof Chart === `undefined`) return;
+      const canvas = document.getElementById(`chart-pnl`);
+      if (!canvas) return;
+      const fin = computeFinancialSummary();
+      const c1 = getCssToken(`--data-1`);
+      const c2 = getCssToken(`--data-2`);
+      const c3 = getCssToken(`--data-3`);
+      const c4 = getCssToken(`--data-4`);
+      const ink = getCssToken(`--on-surface`);
+      const muted = getCssToken(`--on-surface-variant`);
+      const grid = getCssToken(`--outline-variant`);
+
+      if (chartInstances.pnl) chartInstances.pnl.destroy();
+      chartInstances.pnl = new Chart(canvas.getContext(`2d`), {
+        type: `bar`,
+        data: {
+          labels: [`Pendapatan Total`, `HPP`, `Beban Ops`, `Laba Bersih`],
+          datasets: [{
+            label: `Nilai (Rp)`,
+            data: [fin.penjualan + fin.pendapatanLain, fin.hpp, fin.bebanOps, fin.labaBersih],
+            backgroundColor: [c1, c4, c2, c3],
+            borderRadius: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: ink, font: { family: `'IBM Plex Mono', monospace`, size: 11 } } },
+            y: {
+              grid: { color: grid },
+              ticks: {
+                color: muted,
+                font: { family: `'IBM Plex Mono', monospace`, size: 11 },
+                callback: v => `${(v / 1000000).toFixed(1)} Jt`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // =========================================================================
+    // 13. EKSPOR CSV (notebookAppApi.triggerFileDownload)
+    // =========================================================================
+    function downloadCsvFile(csvContent, filename) {
+      if (window.notebookAppApi && typeof window.notebookAppApi.triggerFileDownload === `function`) {
+        window.notebookAppApi.triggerFileDownload({
+          content: csvContent,
+          contentType: `text/csv`,
+          encoding: `UTF-8`,
+          filename
+        });
+        showToast(`Berhasil mengekspor ${filename}.`, `positive`);
+      } else {
+        const blob = new Blob([csvContent], { type: `text/csv;charset=utf-8;` });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement(`a`);
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast(`Berhasil mengunduh ${filename}.`, `positive`);
+      }
+    }
+
+    function exportAllJournalsCsv() {
+      const lines = [`ID Jurnal,Tanggal,Modul,Referensi,Kode Akun,Nama Akun,Keterangan,Debit,Kredit`];
+      appState.journals.forEach(j => {
+        j.lines.forEach(l => {
+          const safeDesc = `"${String(j.description).replace(/"/g, `""`)}"`;
+          const accName = `"${String(COA_MAP[l.accountCode]?.name || ``).replace(/"/g, `""`)}"`;
+          lines.push(`${j.id},${j.date},${j.source},${j.ref},${l.accountCode},${accName},${safeDesc},${l.debit},${l.credit}`);
+        });
+      });
+      downloadCsvFile(lines.join(`\n`), `jurnal-umum-nov-2026.csv`);
+    }
+
+    function exportFinancialReportCsv(kind) {
+      const fin = computeFinancialSummary();
+      if (kind === `PNL`) {
+        const rows = [
+          `Pos Laporan Laba Rugi,Nominal (Rp)`,
+          `4101 Pendapatan Penjualan,${fin.penjualan}`,
+          `5101 Harga Pokok Penjualan,${-fin.hpp}`,
+          `Laba Kotor,${fin.labaKotor}`,
+          `6101 Beban Operasional & Gaji,${-fin.bal[`6101`]}`,
+          `6102 Beban Utilitas & Sewa,${-fin.bal[`6102`]}`,
+          `6103 Beban Penyesuaian Persediaan,${-fin.bal[`6103`]}`,
+          `4201 Pendapatan Jasa & Lainnya,${fin.pendapatanLain}`,
+          `Laba Bersih,${fin.labaBersih}`
+        ];
+        downloadCsvFile(rows.join(`\n`), `laporan-laba-rugi-nov-2026.csv`);
+      } else {
+        const rows = [
+          `Kelompok,Akun,Nominal (Rp)`,
+          `ASET,1101 Kas Tunai,${fin.bal[`1101`]}`,
+          `ASET,1102 Bank BCA Operasional,${fin.bal[`1102`]}`,
+          `ASET,1103 Bank Mandiri Bisnis,${fin.bal[`1103`]}`,
+          `ASET,1201 Piutang Usaha,${fin.piutangUsaha}`,
+          `ASET,1301 Persediaan Barang Dagang,${fin.persediaan}`,
+          `ASET,1501 Peralatan & Aset Tetap,${fin.asetTetap}`,
+          `ASET,TOTAL ASET,${fin.totalAset}`,
+          `LIABILITAS,2101 Utang Usaha,${fin.utangUsaha}`,
+          `EKUITAS,3101 Modal Disetor,${fin.modalDisetor}`,
+          `EKUITAS,3201 Laba Ditahan,${fin.labaDitahan}`,
+          `EKUITAS,Laba Tahun Berjalan,${fin.labaBersih}`,
+          `PASIVA,TOTAL LIABILITAS & EKUITAS,${fin.totalLiabEkuitas}`
+        ];
+        downloadCsvFile(rows.join(`\n`), `neraca-keuangan-nov-2026.csv`);
+      }
+    }
+
+    // =========================================================================
+    // 14. INISIALISASI APLIKASI
+    // =========================================================================
+    function setDefaultDates() {
+      [`sale-date`, `purch-date`, `adj-date`, `cb-date`, `sales-pay-date`, `purch-pay-date`].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !el.value) el.value = TODAY_ISO;
+      });
+    }
+
+    function renderAll() {
+      renderDashboard();
+      renderSalesModule();
+      renderPurchasingModule();
+      renderInventoryModule();
+      renderCashBankModule();
+      renderLedgerModule();
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    async function initApp() {
+      setDefaultDates();
+      updateCashBankContraOptions();
+      const loaded = await loadInitialState();
+      if (loaded) {
+        appState = loaded;
+      } else {
+        await persistState();
+      }
+      renderAll();
+      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === `function`) {
+        window.notebookAppApi.notifyAppReady();
+      }
+    }
+
+    document.addEventListener(`DOMContentLoaded`, initApp);
+  </script>
+</body>
+</html>
