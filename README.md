@@ -1,0 +1,2 @@
+# Accurate-Online-Software-Akuntansi-Bisnis-Online-Terbaik
+Accurate Online Web App adalah aplikasi akuntansi mandiri berarsitektur Single-File HTML yang menggabungkan HTML, CSS, dan JavaScript tanpa proses build. Aplikasi ini menyediakan modul Penjualan, Pembelian, Persediaan, Kas &amp; Bank, serta Jurnal Otomatis dan Laporan Keuangan berbasis localStorage yang responsif dan langsung siap digunakan.
